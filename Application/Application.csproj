@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application.DTOs\Application.DTOs.csproj" />
+    <ProjectReference Include="..\ApplicationServiceContract\Application.Contrast.csproj" />
+    <ProjectReference Include="..\Catalogue.DomainServiceContract\Catalogue.DomainServiceContract.csproj" />
+    <ProjectReference Include="..\Catalogue.Domain\Catalogue.Domain.csproj" />
+    <ProjectReference Include="..\FramWork.Application\Application.Common.csproj" />
+  </ItemGroup>
+
+</Project>

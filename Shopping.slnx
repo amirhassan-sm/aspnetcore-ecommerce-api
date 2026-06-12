@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Application/">
+    <Project Path="Application.DTOs/Application.DTOs.csproj" Id="6d395146-04f4-416a-bc8d-448fe4a7fb79" />
+    <Project Path="Application/Application.csproj" Id="a0e1240d-57f8-494d-b4ea-27114fce4a05" />
+    <Project Path="ApplicationServiceContract/Application.Contrast.csproj" Id="c083819c-5ec9-4abf-a8c4-1688d8fb6f28" />
+    <Project Path="FramWork.Application/Application.Common.csproj" Id="c960bbdd-5188-4da8-b259-bb1902932cc6" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Catalogue.Domain/Catalogue.Domain.csproj" />
+    <Project Path="Catalogue.DomainServiceContract/Catalogue.DomainServiceContract.csproj" />
+    <Project Path="Framwork.Domain/Framwork.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastracture.Catalogue.EF.Persistance/Infrastracture.Catalogue.EF.Persistance.csproj" Id="760259d0-f47b-42d6-9856-a2f6a180def4" />
+    <Project Path="Security/Security.csproj" Id="6f08b99f-5b25-4d3e-b6f5-a2cd87259337" />
+  </Folder>
+  <Project Path="Shopping/Shopping.csproj" />
+</Solution>
