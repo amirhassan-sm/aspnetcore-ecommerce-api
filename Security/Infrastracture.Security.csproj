@@ -19,5 +19,12 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Application.DTOs\Application.DTOs.csproj" />
+	  <ProjectReference Include="..\ApplicationServiceContract\Application.Contrast.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Security\" />
+	</ItemGroup>
 
 </Project>

@@ -39,6 +39,12 @@ namespace Application.Common.BaseModel
 
         }
 
+        public static OperationResult ToSuccess( string messege)
+        {
+            return new OperationResult(null, messege, true, new List<string>());
+
+        }
+
         public static OperationResult ToFail(int RecordId, string messege, List<string> Errors)
         {
 

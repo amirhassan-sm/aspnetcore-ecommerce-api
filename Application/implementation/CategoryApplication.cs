@@ -132,14 +132,14 @@ namespace Application.implementation
             }
         }
 
-        public async Task<GenericOperationResult<CategoryUpdateModel>> Get(int Categoryid)
+        public async Task<GenericOperationResult<List<CategoryUpdateModel>>> Get(int Categoryid)
         {
             try
             {
                 var cat = await repo.Get(Categoryid);
                 if (cat == null)
                 {
-                    return GenericOperationResult<CategoryUpdateModel>.ToFail("Get Failed", new List<string> { "this category dose not exist" });
+                    return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("Get Failed", new List<string> { "this category dose not exist" });
                 }
                 CategoryUpdateModel ViewCat = new CategoryUpdateModel
                 {
@@ -151,14 +151,14 @@ namespace Application.implementation
                     ParentId = cat.ParentId,
                 };
               
-                return GenericOperationResult<CategoryUpdateModel>.ToSuccess(Categoryid, "", new List<CategoryUpdateModel> { ViewCat });
+                return GenericOperationResult<List<CategoryUpdateModel>>.ToSuccess(Categoryid , "" ,new List<CategoryUpdateModel> { ViewCat });
 
 
             }
             catch
             {
 
-                return GenericOperationResult<CategoryUpdateModel>.ToFail("Get Failed", new List<string> { "can not find this category" });
+                return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("Get Failed", new List<string> { "can not find this category" });
 
             }
         }

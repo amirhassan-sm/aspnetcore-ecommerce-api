@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Security.Identity
 {
-    public class ApplicationRole:IdentityRole<int>
+    public class ApplicationRole : IdentityRole<int>
     {
         public int ApplicationUserRoleID { get; set; }
         public string Description { get; set; }

@@ -26,9 +26,11 @@ namespace Catalogue.Domain.Models
         public string PageTitle { get; set; }
         public string MetaTag { get; set; }
         public string MetaDescription { get; set; }
+        public int AvailableProductCount { get; set; }
 
         public Category category { get; set; }
         public List<ProductFeature> productFeatures { get; set; } = new List<ProductFeature>();
+        public List<ProductMedia> productMedia { get; set; } = new List<ProductMedia>();
 
 
 

@@ -1,12 +1,12 @@
 ﻿
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Security.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Security.Identity;
 
 namespace Security
 {
@@ -26,7 +26,7 @@ namespace Security
 
             });
             builder.Entity<ApplicationRole>().HasKey(x => x.ApplicationUserRoleID);
-            builder.Entity<ApplicationRole>().Property(x=>x.Description).HasMaxLength(50);
+            builder.Entity<ApplicationRole>().Property(x=>x.Description).HasMaxLength(50).IsRequired(false);
             builder.Entity<ApplicationUser>()
                 .HasMany(x => x.appliactionUserRoles).WithOne(x => x.applicationUser).HasForeignKey(x=>x.ApplicationUserId);
             builder.Entity<ApplicationRole>()

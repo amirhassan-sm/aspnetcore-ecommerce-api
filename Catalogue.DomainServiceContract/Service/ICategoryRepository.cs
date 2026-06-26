@@ -31,6 +31,8 @@ namespace Catalogue.DomainServiceContract.Service
 
         Task<List<Category>> GetChildren(int CategoryID);
 
+        //Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
+
 
 
 

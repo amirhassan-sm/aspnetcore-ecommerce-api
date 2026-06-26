@@ -9,10 +9,11 @@
     <Project Path="Catalogue.Domain/Catalogue.Domain.csproj" />
     <Project Path="Catalogue.DomainServiceContract/Catalogue.DomainServiceContract.csproj" />
     <Project Path="Framwork.Domain/Framwork.Domain.csproj" />
+    <Project Path="Security.domainServiceContract/Security.domainServiceContract.csproj" Id="c15e4332-42dd-40e8-9efc-ea1fe49e2fb7" />
   </Folder>
   <Folder Name="/Infrastructure/">
     <Project Path="Infrastracture.Catalogue.EF.Persistance/Infrastracture.Catalogue.EF.Persistance.csproj" Id="760259d0-f47b-42d6-9856-a2f6a180def4" />
-    <Project Path="Security/Security.csproj" Id="6f08b99f-5b25-4d3e-b6f5-a2cd87259337" />
+    <Project Path="Security/Infrastracture.Security.csproj" Id="6f08b99f-5b25-4d3e-b6f5-a2cd87259337" />
   </Folder>
   <Project Path="Shopping/Shopping.csproj" />
 </Solution>

@@ -11,7 +11,7 @@ namespace Application.Contrast.Services
 {
     public interface ICategoryApplicationServiceContract
     {
-        Task<GenericOperationResult<CategoryUpdateModel>> Get(int Categoryid);
+        Task<GenericOperationResult<List<CategoryUpdateModel>>> Get(int Categoryid);
         Task<OperationResult> AddNew(CategoryAddModel model);
         Task<OperationResult> Remove(int id);
         Task<OperationResult> Update(CategoryUpdateModel model);

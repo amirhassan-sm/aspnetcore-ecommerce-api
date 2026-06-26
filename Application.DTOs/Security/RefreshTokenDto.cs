@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Security.DomainServiceContract.Services
+namespace Application.DTOs.Security
 {
-    public interface IAthentication
+    public class RefreshTokenDto
     {
-        public Task<bool> AuthenticateAsync();
+        public string RefreshToken{ get; set; }
     }
 }

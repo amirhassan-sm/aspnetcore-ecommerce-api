@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Contrast.Services
+namespace Catalogue.Domain.Models
 {
-    public interface IUserManagement
+    public class MediaType
     {
+    
 
     }
 }
