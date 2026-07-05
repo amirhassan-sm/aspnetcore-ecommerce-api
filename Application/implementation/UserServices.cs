@@ -75,7 +75,7 @@ namespace Application.implementation
             }
         }
 
-        public async Task<UserProfileDto> GetProfile(int userId)
+        public async Task<UserProfileDto> GetProfile(int userId) 
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
             var roles = await userManager.GetRolesAsync(user);

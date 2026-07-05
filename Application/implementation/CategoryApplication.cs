@@ -23,28 +23,36 @@ namespace Application.implementation
         private Category ToDBModel(CategoryAddModel model)
         {
             Category cat =
-                 new Category ();
+                 new Category();
 
             cat.CategoryName = model.CategoryName;
             cat.CategoryDescription = model.CategoryDescription;
             cat.ParentId = model.ParentId;
+            cat.Slug = model.Slug;
 
             return cat;
-             
+
         }
 
 
 
 
 
-        public async Task<OperationResult> AddNew(CategoryAddModel model)//Check name
+        public async Task<OperationResult> AddNew(CategoryAddModel model)
         {
+            // depth and line age dose not set proper
 
 
 
-            if (await repo.ExistSlugName(model.CategoryName))
+            if (await repo.ExistCategoryName(model.CategoryName))
             {
                 return OperationResult.ToFail("add failed", new List<string>() { "name Already Exist" });
+            }
+            if (await repo.ExistSlugName(model.Slug))
+            {
+                return OperationResult.ToFail("add failed", new List<string> { "slug already exist" });
+
+
             }
 
             int depth = 0;
@@ -58,7 +66,7 @@ namespace Application.implementation
                 if (parent == null)
                 {
                     return OperationResult.ToFail("Add Failed", new List<string> { "this parent dose not exist" });
-                    
+
                 }
                 if (parent.Depth == 3)
                 {
@@ -84,7 +92,7 @@ namespace Application.implementation
 
                 return OperationResult.ToFail("Add Failed", new List<string>());
             }
-            string Lineage="";
+            string Lineage = "";
             if (model.ParentId == null)
             {
                 Lineage = $"{recordId},";
@@ -94,6 +102,7 @@ namespace Application.implementation
             {
 
                 var parent = await repo.Get(model.ParentId.Value);
+               
                 Lineage = $"{parent.LineAge}{recordId},";
             }
 
@@ -150,8 +159,8 @@ namespace Application.implementation
                     LineAge = cat.LineAge,
                     ParentId = cat.ParentId,
                 };
-              
-                return GenericOperationResult<List<CategoryUpdateModel>>.ToSuccess(Categoryid , "" ,new List<CategoryUpdateModel> { ViewCat });
+
+                return GenericOperationResult<List<CategoryUpdateModel>>.ToSuccess(Categoryid, "", new List<CategoryUpdateModel> { ViewCat });
 
 
             }
@@ -203,7 +212,7 @@ namespace Application.implementation
         {
             try
             {
-                var id = await repo.RemoveFeatureToCategory(categoryId,FeaturId);
+                var id = await repo.RemoveFeatureToCategory(categoryId, FeaturId);
                 return OperationResult.ToSuccess(id, "Feature removed from Category");
             }
             catch
@@ -216,12 +225,12 @@ namespace Application.implementation
         public async Task<GenericComplexResult<CategorySearchModel, CategoryListItem>> Search(CategorySearchModel sm)
         {
 
-           
+
             var cat = await repo.Search(sm);
-            
+
             return cat;
-            
-          
+
+
 
         }
 
@@ -231,12 +240,15 @@ namespace Application.implementation
             int NewParentDepth;
             string NewParentLineAge = "";
 
-                var cat = new Category
+            var cat = new Category
             {
                 CategoryId = model.CategoryId,
                 CategoryName = model.CategoryName,
                 CategoryDescription = model.CategoryDescription,
-                ParentId = model.ParentId
+                ParentId = model.ParentId,
+                Slug = model.Slug,
+
+
 
             };
             // there is this model in db
@@ -244,10 +256,17 @@ namespace Application.implementation
 
             //check if name is unique
 
-            if (await repo.ExistCategoryName(cat.CategoryName))
+            if (await repo.ExistCategoryNameExceptCurrentAsync(cat.CategoryId,cat.CategoryName))
             {
                 return OperationResult.ToFail(cat.CategoryId, "Update Fialed", new List<string> { " this name already ssigned to another category" });
             }
+
+            //todo duplicate slug 
+            if (await repo.ExistCategorySlugExceptCurrentAsync(cat.CategoryId,cat.Slug))
+            {
+                return OperationResult.ToFail("update failed", new List<string> { " this slug already exist " });
+            }
+
 
 
 
@@ -255,17 +274,24 @@ namespace Application.implementation
 
             //checked if the new parent id is exist
 
+
             if (oldnode.ParentId != cat.ParentId)
             {
-                
-                var oldparent = await repo.Get(oldnode.ParentId ?? 0 );
+
+
+                var oldparent = await repo.Get(oldnode.ParentId ?? 0);
                 if (oldparent != null)
                 {
                     OldParentLineAge = oldparent.LineAge;
 
                 }
                 else { OldParentLineAge = ""; }
-                var NewparentNode = await repo.Get(cat.ParentId.Value);
+
+
+
+
+
+                var NewparentNode = await repo.Get(cat.ParentId ??0);
                 if (NewparentNode != null)
                 {
                     NewParentLineAge = NewparentNode.LineAge;
@@ -286,14 +312,18 @@ namespace Application.implementation
                 }
 
                 var nodeChildes = await repo.GetChildren(cat.CategoryId);
-                
+                if (NewparentNode?.LineAge?.Contains($"{model.CategoryId}," )==true)
+                {
+                    return OperationResult.ToFail(model.CategoryId, "Update Failed", new List<string> { " a node can not be it's own child " });
+                }
+
 
                 foreach (var child in nodeChildes)
                 {
                     string NewLineAge = string.Empty;
                     if (string.IsNullOrEmpty(OldParentLineAge))
                     {
-                        NewLineAge = NewParentLineAge + child.CategoryId + ",";
+                        NewLineAge = NewParentLineAge + child.LineAge ;
 
                     }
                     else
@@ -307,10 +337,7 @@ namespace Application.implementation
 
                 }
 
-                if (NewparentNode.LineAge.Contains($"{model.CategoryId}"))
-                {
-                    return OperationResult.ToFail(model.CategoryId, "Update Failed", new List<string> { " a node can not be it's own child " });
-                }
+
 
 
 

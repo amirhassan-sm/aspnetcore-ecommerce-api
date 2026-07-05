@@ -13,7 +13,7 @@ namespace Shopping.Controllers
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-    [Authorize(Roles ="admin")]
+    //[Authorize(Roles ="admin")]
     public class CategoryAdminManagementController : ControllerBase
     {
         private readonly ICategoryApplicationServiceContract CatApp;
@@ -85,8 +85,8 @@ namespace Shopping.Controllers
             return BadRequest(op);
 
         }
-        [HttpPost("SearchCategory")]
-        public async Task<IActionResult> Search(CategorySearchModel sm) 
+        [HttpGet("SearchCategory")]
+        public async Task<IActionResult> Search([FromQuery]CategorySearchModel sm) 
         {
             try
             {
@@ -116,11 +116,20 @@ namespace Shopping.Controllers
 
 
         [HttpPut("UpdateCategory")]
-        public async Task<IActionResult> UpdateCategory(CategoryUpdateModel model) 
-        { // updating the tree has things to fix other is doing well
+        public async Task<IActionResult> UpdateCategory( [FromBody]CategoryUpdateEntryDto model) 
+        { 
             try
             {
-                var op = await CatApp.Update(model);
+                var catModel = new CategoryUpdateModel {
+                    CategoryId = model.CategoryId,
+                    CategoryDescription = model.CategoryDescription,
+                    CategoryName = model.CategoryName,
+                    ParentId = model.ParentId,
+                    Slug = model.Slug,
+                
+                
+                };
+                var op = await CatApp.Update(catModel);
                 if (op.Success == true)
                 {
                     return Ok(op);

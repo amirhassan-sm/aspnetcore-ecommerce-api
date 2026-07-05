@@ -205,7 +205,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             //so max depth - depth of cruurent == depth of current node (the childs that current node has)
 
             var MaxChildDepth = MaxDepth - node.Depth.Value;
-            return MaxChildDepth ;// +1 for current node it self
+            return MaxChildDepth+1 ;// +1 for current node it self
         }
 
         public async Task<List<Category>> GetChildren(int CategoryID)
@@ -213,6 +213,47 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
            var node = db.categories.FirstOrDefault(x=>x.CategoryId == CategoryID)   ;
             var cats = await db.categories.Where(x => x.LineAge.StartsWith(node.LineAge)).ToListAsync();
             return cats;
+        }
+
+        public async Task<bool> HasProduct(int categoryId)
+        {
+            try {
+                
+                return await db.products.AnyAsync(x=>x.CategoryId == categoryId);
+            
+            }
+            catch(Exception ex) {
+
+                throw new Exception(ex.Message);
+            
+            
+            
+            }
+        }
+
+        public async Task<bool> ExistCategoryNameExceptCurrentAsync(int categoryId, string categoryName)
+        {
+            return await db.categories.AnyAsync(x => x.CategoryId != categoryId && x.CategoryName == categoryName);
+        }
+
+        public async Task<bool> ExistCategorySlugExceptCurrentAsync(int categoryId, string slug)
+        {
+            return await db.categories.AnyAsync(x => x.CategoryId != categoryId && x.Slug == slug);
+        }
+
+        public async Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId)
+        {
+            var result = await db.CategoryFeatures.Where(x=>x.CategoryId == CategoryId).ToListAsync();
+            return result; 
+
+
+            
+        }
+
+        public async Task<List<Category>> GetLevel1CategoryAsync()
+        {
+            var result = await db.categories.Where(x=>x.Depth == 1).ToListAsync();
+            return result;
         }
     }
 }

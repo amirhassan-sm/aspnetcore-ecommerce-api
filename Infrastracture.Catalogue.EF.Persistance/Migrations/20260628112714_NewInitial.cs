@@ -5,7 +5,7 @@
 namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 {
     /// <inheritdoc />
-    public partial class IntilaDb : Migration
+    public partial class NewInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,8 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     LineAge = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     MetaData = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    MetaTag = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    MetaTag = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Depth = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -40,12 +41,26 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                 {
                     FeatureId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FeatureName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FeatureDescription = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FeatureName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    FeatureDescription = table.Column<string>(type: "nvarchar(1500)", maxLength: 1500, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_features", x => x.FeatureId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MediaType",
+                columns: table => new
+                {
+                    MediaTypeId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MediaType", x => x.MediaTypeId);
                 });
 
             migrationBuilder.CreateTable(
@@ -55,17 +70,18 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BasePrice = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Introduction = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExtraData = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BodyExtraData = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PageTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MetaTag = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ProductName = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    ProductDescription = table.Column<string>(type: "nvarchar(1500)", maxLength: 1500, nullable: true),
+                    BasePrice = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Introduction = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ExtraData = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    BodyExtraData = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    PageTitle = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    MetaTag = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    MetaDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    AvailableProductCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -110,7 +126,8 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     ProductFeatureId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FeatureId = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false)
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,10 +146,54 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProductMedia",
+                columns: table => new
+                {
+                    ProductMediaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    MediaTypeId = table.Column<int>(type: "int", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    fileSize = table.Column<long>(type: "bigint", nullable: false),
+                    UploadingUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    ConfirmByUserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductMedia", x => x.ProductMediaId);
+                    table.ForeignKey(
+                        name: "FK_ProductMedia_MediaType_MediaTypeId",
+                        column: x => x.MediaTypeId,
+                        principalTable: "MediaType",
+                        principalColumn: "MediaTypeId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductMedia_products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "products",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Category_CategoryName",
+                table: "Category",
+                column: "CategoryName",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Category_ParentId",
                 table: "Category",
                 column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Category_Slug",
+                table: "Category",
+                column: "Slug",
+                unique: true,
+                filter: "[Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CategoryFeatures_CategoryId",
@@ -155,6 +216,16 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductMedia_MediaTypeId",
+                table: "ProductMedia",
+                column: "MediaTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductMedia_ProductId",
+                table: "ProductMedia",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_products_CategoryId",
                 table: "products",
                 column: "CategoryId");
@@ -170,7 +241,13 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                 name: "ProductFeatures");
 
             migrationBuilder.DropTable(
+                name: "ProductMedia");
+
+            migrationBuilder.DropTable(
                 name: "features");
+
+            migrationBuilder.DropTable(
+                name: "MediaType");
 
             migrationBuilder.DropTable(
                 name: "products");

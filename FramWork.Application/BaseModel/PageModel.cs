@@ -38,13 +38,14 @@ namespace Application.Common.BaseModel
         public int PageCount
         {
             get
-            {
+            {   
+                
               
-                if (RecordCount % _pageSize == 0)
+                if (RecordCount % pageSize == 0)
                 {
-                    return RecordCount / _pageSize;
+                    return RecordCount / pageSize;
                 }
-                else { return (RecordCount / _pageSize) + 1; }
+                else { return (RecordCount / pageSize) + 1; }
             }
         }
 

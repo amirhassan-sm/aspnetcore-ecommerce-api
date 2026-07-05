@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 {
     [DbContext(typeof(CatalogueContext))]
-    [Migration("20260427150010_CtagoryPropertiesSet")]
-    partial class CtagoryPropertiesSet
+    [Migration("20260629202745_decimalProductBasePrice")]
+    partial class decimalProductBasePrice
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,10 +57,8 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("ParentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Slug")
                         .HasMaxLength(500)
@@ -68,7 +66,14 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
                     b.HasKey("CategoryId");
 
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
 
                     b.ToTable("Category", (string)null);
                 });
@@ -118,6 +123,26 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.ToTable("features");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.MediaType", b =>
+                {
+                    b.Property<int>("MediaTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MediaTypeId"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("MediaTypeId");
+
+                    b.ToTable("MediaType");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -126,10 +151,12 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<string>("BasePrice")
-                        .IsRequired()
+                    b.Property<int>("AvailableProductCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BasePrice")
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("BodyExtraData")
                         .HasMaxLength(1000)
@@ -196,6 +223,10 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ProductFeatureId");
 
                     b.HasIndex("FeatureId");
@@ -205,13 +236,53 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.ToTable("ProductFeatures");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.ProductMedia", b =>
+                {
+                    b.Property<int>("ProductMediaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductMediaId"));
+
+                    b.Property<string>("ConfirmByUserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MediaTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadingUserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("fileSize")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ProductMediaId");
+
+                    b.HasIndex("MediaTypeId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductMedia");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Category", b =>
                 {
                     b.HasOne("Catalogue.Domain.Models.Category", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Parent");
                 });
@@ -265,6 +336,25 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Navigation("product");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.ProductMedia", b =>
+                {
+                    b.HasOne("Catalogue.Domain.Models.MediaType", "MediaType")
+                        .WithMany("ProductMedia")
+                        .HasForeignKey("MediaTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalogue.Domain.Models.Product", "Product")
+                        .WithMany("productMedia")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaType");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Category", b =>
                 {
                     b.Navigation("CategoryFeatures");
@@ -281,9 +371,16 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Navigation("productFeatures");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.MediaType", b =>
+                {
+                    b.Navigation("ProductMedia");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Product", b =>
                 {
                     b.Navigation("productFeatures");
+
+                    b.Navigation("productMedia");
                 });
 #pragma warning restore 612, 618
         }

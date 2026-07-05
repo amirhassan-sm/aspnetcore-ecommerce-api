@@ -18,7 +18,10 @@ namespace Catalogue.DomainServiceContract.Service
         Task<GenericComplexResult<CategorySearchModel,CategoryListItem >> Search(CategorySearchModel sm);
 
         Task<bool> ExistCategoryName(string categoryName);
+        Task<bool> ExistCategoryNameExceptCurrentAsync(int categoryId,string categoryName);
+        Task<bool> ExistCategorySlugExceptCurrentAsync(int categoryId, string slug);
         Task<bool> ExistSlugName(string categorySlug);
+
 
         Task<bool> SetDepthAndLineAge(int CategoryId , int depth , string LineAge);
         Task<bool> ExistCategoryFeature(int Categoryid , int FeatureId );
@@ -31,10 +34,19 @@ namespace Catalogue.DomainServiceContract.Service
 
         Task<List<Category>> GetChildren(int CategoryID);
 
-        //Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
+        Task<bool> HasProduct(int categoryId);
+
+        
+       
+
+        Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
+
+        Task<List<Category>> GetLevel1CategoryAsync();
+       
 
 
 
 
     }
 }
+ 

@@ -16,8 +16,14 @@ namespace Application.Contrast.Services
         Task<OperationResult> Remove(int id);
         Task<OperationResult> Update(CategoryUpdateModel model);
         Task<GenericComplexResult<CategorySearchModel, CategoryListItem>> Search(CategorySearchModel sm);
+
+        //TODO here you should assign them to its products as well
         Task<OperationResult> AssignFeatureToCategory(int categoryId, int FeaturId);
         Task<OperationResult> RemoveFeatureToCategory(int categoryId, int FeaturId);
-        
+
+        Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
+
+        Task<List<Category>> GetLevel1CategoryAsync();
+
     }
 }

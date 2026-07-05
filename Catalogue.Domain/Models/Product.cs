@@ -14,7 +14,7 @@ namespace Catalogue.Domain.Models
 
         public string ProductDescription { get; set; }
 
-        public string BasePrice { get; set; }
+        public decimal BasePrice { get; set; }
 
         public string ImageUrl { get; set; }
 

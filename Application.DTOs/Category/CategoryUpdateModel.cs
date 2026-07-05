@@ -16,6 +16,7 @@ namespace Application.DTOs.Category
 
         public string LineAge { get; set; }
         public int? Depth { get; set; }
+        public string Slug { get; set; } = string.Empty;
 
     }
 }

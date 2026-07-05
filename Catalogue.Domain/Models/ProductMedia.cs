@@ -14,9 +14,9 @@ namespace Catalogue.Domain.Models
         public int MediaTypeId { get; set; }
         public string Url { get; set; } = string.Empty;
         public long fileSize { get; set; }
-        public string  UploadingUserName { get; set; }
+        public string  UploadingUserName { get; set; }=string.Empty;
         public bool  IsConfirmed { get; set; }
-        public string  ConfirmByUserName { get; set; }
+        public string  ConfirmByUserName { get; set; } = string.Empty;  
 
         public Product Product { get; set; }
         public MediaType MediaType{ get; set; }

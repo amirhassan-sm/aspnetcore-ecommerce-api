@@ -1,8 +1,10 @@
-﻿using Application.Contrast.Repositories;
+﻿using Application.Contrast.QueryServices;
+using Application.Contrast.Repositories;
 using Application.Contrast.Services;
 using Application.implementation;
 using Catalogue.DomainServiceContract.Service;
 using Infrastracture.Catalogue.EF.Persistance;
+using Infrastracture.Catalogue.EF.Persistance.Querie;
 using Infrastracture.Catalogue.EF.Persistance.Repositories;
 using Infrastracture.Security.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -109,6 +111,9 @@ builder.Services.AddScoped<IUserService,UserServices>();
 builder.Services.AddScoped<IRoleServices, RoleServices>();
 builder.Services.AddScoped<IUserRoleServices, UserRoleServices>();
 builder.Services.AddScoped<Application.Contrast.Repositories.IUserManegment, Infrastracture.Security.Repository.Usermanagement>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductQueryServices, ProductQueries>();
+builder.Services.AddScoped<IProductApplicationServiceContract ,  ProductApplication>();
 
 //builder.Services.AddHttpClient("shop", client =>
 //{
