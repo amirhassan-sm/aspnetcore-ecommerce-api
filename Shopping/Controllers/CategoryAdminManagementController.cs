@@ -147,5 +147,36 @@ namespace Shopping.Controllers
 
         }
 
+        [HttpGet("GetLevel1Category")]
+        public async Task<IActionResult> GetLevel1Category() {
+            var result = await CatApp.GetLevel1CategoryAsync();
+            if (!result.Success)
+            {
+                return BadRequest(result);
+                
+            }
+            return Ok(result);
+
+
+
+        }
+        [HttpGet("GetFeatures/{id}")]
+        public async Task<IActionResult> GetFeatures( int id) {
+            var result = await CatApp.GetCategoryFeatures(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+                
+            }
+            return Ok(result);
+
+
+
+        }
+
+
+
+
+
     }
 }

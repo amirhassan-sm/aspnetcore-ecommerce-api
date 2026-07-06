@@ -114,6 +114,9 @@ builder.Services.AddScoped<Application.Contrast.Repositories.IUserManegment, Inf
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductQueryServices, ProductQueries>();
 builder.Services.AddScoped<IProductApplicationServiceContract ,  ProductApplication>();
+builder.Services.AddScoped<IFeatureRepository, FeatureRepository>();
+builder.Services.AddScoped<IFeatureQueryServices, FeatureQueries>();
+builder.Services.AddScoped<IFeatureApplicationServiceContract , FeatureApplication>();
 
 //builder.Services.AddHttpClient("shop", client =>
 //{

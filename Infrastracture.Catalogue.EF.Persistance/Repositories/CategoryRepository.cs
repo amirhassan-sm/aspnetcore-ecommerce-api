@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
- 
+
 
 namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 {
@@ -33,9 +33,10 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
                 return model.CategoryId;
             }
 
-            catch (Exception ex) { 
-            
-            return -1;
+            catch (Exception ex)
+            {
+
+                return -1;
             }
 
 
@@ -44,24 +45,24 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
         public async Task<int> AssignFeatureToCategory(int categoryId, int FeaturId)
         {
-            CategoryFeature categoryFeature = new CategoryFeature { CategoryId = categoryId,FeatureId=FeaturId};
-           
-                db.CategoryFeatures.Add(categoryFeature);
-               await db.SaveChangesAsync();
-                return categoryFeature.CategoryFeatureId ;
-            
-            
+            CategoryFeature categoryFeature = new CategoryFeature { CategoryId = categoryId, FeatureId = FeaturId };
+
+            db.CategoryFeatures.Add(categoryFeature);
+            await db.SaveChangesAsync();
+            return categoryFeature.CategoryFeatureId;
+
+
         }
 
         public async Task<bool> ExistCategoryFeature(int Categoryid, int FeatureId)
         {
-            return await db.CategoryFeatures.AnyAsync(x=> x.CategoryId == Categoryid && x.FeatureId == FeatureId);
+            return await db.CategoryFeatures.AnyAsync(x => x.CategoryId == Categoryid && x.FeatureId == FeatureId);
         }
 
         public async Task<bool> ExistCategoryName(string categoryName)
         {
-            return await db.categories.AnyAsync(x=>x.CategoryName == categoryName);
-                
+            return await db.categories.AnyAsync(x => x.CategoryName == categoryName);
+
         }
 
         public async Task<bool> ExistSlugName(string categorySlug)
@@ -71,30 +72,31 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
         public async Task<Category> Get(int id)
         {
-            var cat = await db.categories.FirstOrDefaultAsync(x=>x.CategoryId==id);
+            var cat = await db.categories.FirstOrDefaultAsync(x => x.CategoryId == id);
 
-            
+
             return cat;
         }
 
         public async Task<bool> HasChildCategory(int CategoryId)
         {
-            return await db.categories.AnyAsync(x=>x.ParentId == CategoryId);
+            return await db.categories.AnyAsync(x => x.ParentId == CategoryId);
         }
 
         public async Task<bool> HasProductCategory(int CategoryId)
         {
-            return await db.products.AnyAsync(x=>x.CategoryId == CategoryId);
+            return await db.products.AnyAsync(x => x.CategoryId == CategoryId);
         }
 
         public async Task<bool> IsCategoryExist(int CategoryId)
         {
-            return await db.categories.AnyAsync(x=>x.CategoryId==CategoryId);
+            return await db.categories.AnyAsync(x => x.CategoryId == CategoryId);
         }
 
         public async Task<bool> Remove(int id)
         {
-            try {
+            try
+            {
                 var cat = await db.categories.FirstOrDefaultAsync(x => x.CategoryId == id);
                 db.categories.Remove(cat);
                 await db.SaveChangesAsync();
@@ -106,76 +108,81 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
         public async Task<int> RemoveFeatureToCategory(int categoryId, int FeaturId)
         {
 
-            //var cf = await db.CategoryFeatures.FirstOrDefaultAsync(x=>x.FeatureId==FeaturId && x.CategoryId==categoryId);
+
             var cf = await db.CategoryFeatures.FirstOrDefaultAsync(x => x.FeatureId == FeaturId && x.CategoryId == categoryId);
 
             db.CategoryFeatures.Remove(cf);
-                return cf.CategoryFeatureId;
-            
-           
+            await db.SaveChangesAsync();
+            return cf.CategoryFeatureId;
+
+
         }
 
         public async Task<bool> SetDepthAndLineAge(int CategoryId, int depth, string LineAge)
         {
-            try {
-                var cat = db.categories.FirstOrDefault(x=>x.CategoryId == CategoryId);
+            try
+            {
+                var cat = db.categories.FirstOrDefault(x => x.CategoryId == CategoryId);
                 cat.Depth = depth;
                 cat.LineAge = LineAge;
                 await db.SaveChangesAsync();
                 return true;
-            
+
             }
-            catch { 
-            return false;
+            catch
+            {
+                return false;
             }
         }
 
         public async Task<bool> Update(Category model)
         {
-            try {
-                var cat = await db.categories.FirstOrDefaultAsync(x=>x.CategoryId==model.CategoryId);
-              
-                    
-                    cat.CategoryName = model.CategoryName;
-                    cat.CategoryDescription = model.CategoryDescription;
-                    cat.MetaData = model.MetaData;
-                    cat.MetaTag=model.MetaData;
-                    cat.Slug = model.Slug;
-                    cat.ParentId = model.ParentId; 
-                     
-                    await db.SaveChangesAsync();
+            try
+            {
+                var cat = await db.categories.FirstOrDefaultAsync(x => x.CategoryId == model.CategoryId);
 
-                    return true;
 
-                
+                cat.CategoryName = model.CategoryName;
+                cat.CategoryDescription = model.CategoryDescription;
+                cat.MetaData = model.MetaData;
+                cat.MetaTag = model.MetaData;
+                cat.Slug = model.Slug;
+                cat.ParentId = model.ParentId;
+
+                await db.SaveChangesAsync();
+
+                return true;
+
+
 
 
             }
-            catch { 
+            catch
+            {
                 return false;
-            
+
             }
         }
 
-          async  Task<GenericComplexResult<CategorySearchModel, CategoryListItem>> ICategoryRepository.Search(CategorySearchModel sm)
+        async Task<GenericComplexResult<CategorySearchModel, CategoryListItem>> ICategoryRepository.Search(CategorySearchModel sm)
         {
 
             GenericComplexResult<CategorySearchModel, CategoryListItem> result = new GenericComplexResult<CategorySearchModel, CategoryListItem>();
-           var q = from c in db.categories select c ;
+            var q = from c in db.categories select c;
 
-            
+
             if (!string.IsNullOrEmpty(sm.SeachPhrase))
             {
                 q = q.Where(x => x.CategoryName.Contains(sm.SeachPhrase) || x.CategoryDescription.Contains(sm.SeachPhrase));
             }
 
-            
-            if (sm.ParentID > 0) 
+
+            if (sm.ParentID > 0)
             {
                 q = q.Where(x => x.ParentId == sm.ParentID);
             }
 
-   
+
             var q2 = from items in q
                      select new CategoryListItem
                      {
@@ -183,14 +190,14 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
                          CategoryName = items.CategoryName,
                          ProductCount = 1
 
-                     } ;
+                     };
             sm.RecordCount = await q.CountAsync();
-            q2 =  q2.OrderByDescending(x => x.CategoryID).Skip(sm.PageIndex * sm.pageSize).Take(sm.pageSize);
+            q2 = q2.OrderByDescending(x => x.CategoryID).Skip(sm.PageIndex * sm.pageSize).Take(sm.pageSize);
 
-            
-            result.ListItems =  await q2.ToListAsync();
+
+            result.ListItems = await q2.ToListAsync();
             result.sm = sm;
-            
+
 
             return result;
 
@@ -205,29 +212,31 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             //so max depth - depth of cruurent == depth of current node (the childs that current node has)
 
             var MaxChildDepth = MaxDepth - node.Depth.Value;
-            return MaxChildDepth+1 ;// +1 for current node it self
+            return MaxChildDepth + 1;// +1 for current node it self
         }
 
         public async Task<List<Category>> GetChildren(int CategoryID)
         {
-           var node = db.categories.FirstOrDefault(x=>x.CategoryId == CategoryID)   ;
+            var node = db.categories.FirstOrDefault(x => x.CategoryId == CategoryID);
             var cats = await db.categories.Where(x => x.LineAge.StartsWith(node.LineAge)).ToListAsync();
             return cats;
         }
 
         public async Task<bool> HasProduct(int categoryId)
         {
-            try {
-                
-                return await db.products.AnyAsync(x=>x.CategoryId == categoryId);
-            
+            try
+            {
+
+                return await db.products.AnyAsync(x => x.CategoryId == categoryId);
+
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
 
                 throw new Exception(ex.Message);
-            
-            
-            
+
+
+
             }
         }
 
@@ -243,17 +252,53 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
         public async Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId)
         {
-            var result = await db.CategoryFeatures.Where(x=>x.CategoryId == CategoryId).ToListAsync();
-            return result; 
+            var result = await db.CategoryFeatures.Where(x => x.CategoryId == CategoryId).ToListAsync();
+            return result;
 
 
-            
+
         }
 
         public async Task<List<Category>> GetLevel1CategoryAsync()
         {
-            var result = await db.categories.Where(x=>x.Depth == 1).ToListAsync();
+            var result = await db.categories.Where(x => x.Depth == 1).ToListAsync();
             return result;
+        }
+
+        public Task<List<int>> GetCategoryProductsId(int CategoryId)
+        {
+            return db.products.Where(x => x.CategoryId == CategoryId).Select(x => x.ProductId).ToListAsync();
+        }
+
+        public async Task AssignFeatureToProductsAsync(int featureId, List<int> productIds)
+        {
+            var ProdFeatures = productIds.Select(x => new ProductFeature
+            {
+                FeatureId = featureId,
+                ProductId = x,
+                Value = string.Empty
+            });
+
+            db.ProductFeatures.AddRange(ProdFeatures);
+            await db.SaveChangesAsync();
+        }
+
+        public Task<bool> IsFeatureExist(int featureId)
+        {
+
+            return db.features.AnyAsync(x => x.FeatureId == featureId);
+        }
+
+        public async Task RemoveFeatureFromProductsAsync(int featureId, List<int> productIds)
+        {
+            var productFeatures = await db.ProductFeatures
+      .Where(x => x.FeatureId == featureId &&
+                  productIds.Contains(x.ProductId))
+      .ToListAsync();
+
+            db.ProductFeatures.RemoveRange(productFeatures);
+
+            await db.SaveChangesAsync();
         }
     }
 }

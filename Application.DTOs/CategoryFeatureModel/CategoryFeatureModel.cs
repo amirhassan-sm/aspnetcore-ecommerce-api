@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.CategoryFeatureModel
 {
-    internal class CategoryFeatureModel
+    public class CategoryFeatureModel
     {
+        public int CategoryFeatureId { get; set; }
+        public int CategoryId { get; set; }
+        public int FeatureId { get; set; }
     }
 }

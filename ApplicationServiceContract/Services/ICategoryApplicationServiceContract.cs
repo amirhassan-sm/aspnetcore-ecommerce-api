@@ -1,5 +1,6 @@
 ﻿using Application.Common.BaseModel;
 using Application.DTOs.Category;
+using Application.DTOs.CategoryFeatureModel;
 using Catalogue.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -17,13 +18,14 @@ namespace Application.Contrast.Services
         Task<OperationResult> Update(CategoryUpdateModel model);
         Task<GenericComplexResult<CategorySearchModel, CategoryListItem>> Search(CategorySearchModel sm);
 
-        //TODO here you should assign them to its products as well
+        
         Task<OperationResult> AssignFeatureToCategory(int categoryId, int FeaturId);
         Task<OperationResult> RemoveFeatureToCategory(int categoryId, int FeaturId);
 
-        Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
+        Task<GenericOperationResult<List<CategoryFeatureModel>>> GetCategoryFeatures(int CategoryId);
 
-        Task<List<Category>> GetLevel1CategoryAsync();
+        Task<GenericOperationResult<List<CategoryUpdateModel>>> GetLevel1CategoryAsync();
+
 
     }
 }

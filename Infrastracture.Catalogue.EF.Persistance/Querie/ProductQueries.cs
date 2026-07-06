@@ -64,14 +64,14 @@ namespace Infrastracture.Catalogue.EF.Persistance.Querie
             {
                 q = q.Where(x => x.BasePrice <= model.ToUnitePrice);
             }
-            bool CategorySearched = false;
-            if (!CategorySearched && model.Level3CategoryId != null)
+           
+            if ( model.Level3CategoryId != null)
             {
                 q = q.Where(x => x.CategoryId == model.Level3CategoryId);
-                CategorySearched = true;
+                
 
             }
-            if (!CategorySearched && model.Level2CategoryId != null)
+            if ( model.Level2CategoryId != null)
             {
                 var level2Cat = db.categories.FirstOrDefault(x => x.CategoryId == model.Level2CategoryId);
                 if (level2Cat == null)
@@ -86,7 +86,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Querie
 
                     var nextLevelIds = db.categories.Where(x => x.LineAge.StartsWith(level2Cat.LineAge)).Select(x => x.CategoryId).ToList();
                     q = q.Where(prod => nextLevelIds.Contains(prod.CategoryId));
-                    CategorySearched = true;
+                    
                 }
 
 
@@ -96,7 +96,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Querie
 
             }
 
-            if (!CategorySearched)
+            if (model.Level1CategoryId!=null)
             {
                 var level1Cat = db.categories.FirstOrDefault(x => x.CategoryId == model.Level1CategoryId);
                 if (level1Cat == null)

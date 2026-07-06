@@ -1,6 +1,7 @@
 ﻿using Application.Common.BaseModel;
 using Application.Contrast.Services;
 using Application.DTOs.Category;
+using Application.DTOs.CategoryFeatureModel;
 using Catalogue.Domain.Models;
 using Catalogue.DomainServiceContract.Service;
 using System;
@@ -15,7 +16,8 @@ namespace Application.implementation
     public class CategoryApplication : ICategoryApplicationServiceContract
     {
         private readonly ICategoryRepository repo;
-        public CategoryApplication(ICategoryRepository repo)
+        private readonly IProductApplicationServiceContract prodApp;
+        public CategoryApplication(ICategoryRepository repo, IProductApplicationServiceContract prodApp)
         {
             this.repo = repo;
 
@@ -31,6 +33,23 @@ namespace Application.implementation
             cat.Slug = model.Slug;
 
             return cat;
+
+        }
+        private Category UpdateModelMapToCat(CategoryUpdateModel model)
+        {
+            return new Category
+            {
+                CategoryId = model.CategoryId,
+                CategoryName = model.CategoryName,
+                CategoryDescription = model.CategoryDescription,
+                ParentId = model.ParentId,
+                LineAge = model.LineAge,
+                Depth = model.Depth,
+                Slug = model.Slug,
+                
+
+            };
+          
 
         }
 
@@ -117,11 +136,23 @@ namespace Application.implementation
         {
             try
             {
+                if (!await repo.IsCategoryExist(categoryId))
+                {
+                    return OperationResult.ToFail("Failed to assign", new List<string> {"this category does not exist" });
+                    
+                }
+                if (!await repo.IsFeatureExist(FeaturId) )
+                {
+                    return OperationResult.ToFail("Failed to assign", new List<string> { "this feature does not exist" });
+
+                }
                 if (await repo.ExistCategoryFeature(categoryId, FeaturId))
                 {
                     return OperationResult.ToFail("assign failed", new List<string> { "This Feature Already assigned" });
                 }
+
                 var cat = await repo.Get(categoryId);
+                
                 if (cat.Depth != 3)
                 {
                     return OperationResult.ToFail("assign failed", new List<string> { " feature can only assign to level 3 category (depth must be three)" });
@@ -130,13 +161,20 @@ namespace Application.implementation
 
 
                 var catFeatureID = await repo.AssignFeatureToCategory(categoryId, FeaturId);
+
+                var prodIds= await repo.GetCategoryProductsId(categoryId);
+                    
+                await repo.AssignFeatureToProductsAsync(FeaturId, prodIds); 
+
+
+                
                 return OperationResult.ToSuccess(catFeatureID, "Feature successfuly assigned");
 
 
             }
             catch
             {
-                return OperationResult.ToFail("Feature successfuly assigned", new List<string>());
+                return OperationResult.ToFail("an unexpected error occured", new List<string>());
 
             }
         }
@@ -207,15 +245,37 @@ namespace Application.implementation
             }
 
         }
+        
 
         public async Task<OperationResult> RemoveFeatureToCategory(int categoryId, int FeaturId)
         {
             try
             {
+                if (!await repo.IsCategoryExist(categoryId))
+                {
+                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Category does not exist" });
+                    
+                }
+                if (!await repo.IsFeatureExist(FeaturId))
+                {
+                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Feature does not exist" });
+
+                }
+                if (! await repo.ExistCategoryFeature(categoryId,FeaturId))
+                {
+                    return OperationResult.ToFail("failed to remove Category Feature",new List<string> {"this category feature does not exist"});
+                    
+                }
                 var id = await repo.RemoveFeatureToCategory(categoryId, FeaturId);
+
+                var prodIds = await repo.GetCategoryProductsId(categoryId);
+
+                await repo.RemoveFeatureFromProductsAsync(FeaturId, prodIds);
+
+                
                 return OperationResult.ToSuccess(id, "Feature removed from Category");
             }
-            catch
+            catch(Exception ex)
             {
                 return OperationResult.ToFail("remove failed", new List<string> { "there is a problem to remove this feature " });
 
@@ -354,6 +414,69 @@ namespace Application.implementation
             return OperationResult.ToFail(cat.CategoryId, "Update Fialed", new List<string>());
 
 
+        }
+
+        public async Task<GenericOperationResult<List<CategoryFeatureModel>>> GetCategoryFeatures(int CategoryId)
+        {
+            if (!await repo.IsCategoryExist(CategoryId))
+            {
+                return GenericOperationResult<List<CategoryFeatureModel>>.ToFail("failed to get", new List<string>
+            {"this category does not exist"});
+
+
+            }
+            try
+            {
+                var categoryFeatures = await repo.GetCategoryFeatures(CategoryId);
+                var result = categoryFeatures.Select(x => new CategoryFeatureModel
+                {
+                    CategoryFeatureId = x.CategoryFeatureId,
+                    CategoryId = x.CategoryId,
+                    FeatureId = x.FeatureId,
+
+                }).ToList();
+
+                return GenericOperationResult<List<CategoryFeatureModel>>.ToSuccess("get succeed", result);
+            }
+            catch (Exception ex) {
+                return GenericOperationResult<List<CategoryFeatureModel>>.ToFail("failed to get", new List<string>
+            {"an unexpected error occures"});
+
+            }
+
+
+
+
+
+
+        }
+
+        public async Task<GenericOperationResult<List<CategoryUpdateModel>>> GetLevel1CategoryAsync()
+        {
+            try
+            {
+                var rootCats = await repo.GetLevel1CategoryAsync();
+                var result = rootCats.Select(x => new CategoryUpdateModel
+                {
+                    CategoryDescription = x.CategoryDescription,
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.CategoryName,
+                    Depth = x.Depth,
+                    LineAge = x.LineAge,
+                    ParentId = x.ParentId,
+                    Slug = x.Slug,
+
+                }).ToList();
+                return GenericOperationResult<List<CategoryUpdateModel>>.ToSuccess("root categories",result);
+
+            }
+            catch (Exception ex) 
+            {
+               return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("failed to get root categories", new List<string> {
+                "an unexpected error occured"
+                
+                });
+            }
         }
     }
 }

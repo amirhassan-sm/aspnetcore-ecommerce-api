@@ -42,7 +42,14 @@ namespace Catalogue.DomainServiceContract.Service
         Task<List<CategoryFeature>> GetCategoryFeatures(int CategoryId);
 
         Task<List<Category>> GetLevel1CategoryAsync();
-       
+
+        
+        Task<List<int>> GetCategoryProductsId(int CategoryId);
+
+        Task AssignFeatureToProductsAsync(int featureId, List<int> productIds);
+        Task<bool> IsFeatureExist(int featureId);
+        Task RemoveFeatureFromProductsAsync(int featureId , List<int> productIds);
+
 
 
 

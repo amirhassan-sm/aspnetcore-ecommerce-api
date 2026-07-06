@@ -14,6 +14,8 @@ namespace Infrastracture.Catalogue.EF.Persistance.Configuration
         public void Configure(EntityTypeBuilder<Feature> builder)
         {
             builder.Property(x=>x.FeatureName).IsRequired().HasMaxLength(256);
+            builder.HasIndex(x => x.FeatureName).IsUnique();
+            
             builder.Property(x=>x.FeatureDescription).IsRequired(false).HasMaxLength(1500);
 
         }
