@@ -300,5 +300,14 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
             await db.SaveChangesAsync();
         }
+
+        public async Task RemoveAllFeaturesFromCategory(int categoryId)
+        {
+            var features = db.CategoryFeatures.Where(x=>x.CategoryId == categoryId);
+            db.CategoryFeatures.RemoveRange(features);
+            await db.SaveChangesAsync();
+        }
+
+        
     }
 }

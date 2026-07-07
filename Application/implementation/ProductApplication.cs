@@ -230,6 +230,7 @@ namespace Application.implementation
                     return OperationResult.ToFail(ProductId, "remove failed", new List<string> { "this product does not exist" });
 
                 }
+                await repo.RemoveAllFeaturesFromProduct(ProductId);
                 var result = await repo.Remove(ProductId);
                 if (!result)
                 {
@@ -398,6 +399,29 @@ namespace Application.implementation
 
             }
 
+        }
+
+        public async Task<OperationResult> SetFeatureValues(SetProductFeatureModel model)
+        {
+            try {
+                if ( !await repo.IsProductFeatureExistAsync(productid:model.ProductId,FeatureId:model.FeatureId))
+                {
+                    return OperationResult.ToFail("failed to set featuer value", new List<string> {"this product does not have the target feature"});
+                    
+                }
+                await repo.SetFeatureValues(fetureId:model.FeatureId , productId:model.ProductId , value:model.FeaureValue);
+
+                return OperationResult.ToSuccess("the feture value sets successfully");
+
+
+            }
+            catch(Exception ex) {
+
+                logger.LogError(ex,"failed to update producfeature {productId} {fetureId}",model.ProductId,model.FeatureId);
+                return OperationResult.ToFail("failed to set featuer value", new List<string> { "an unexpected error occured" });
+
+
+            }
         }
     }
 }

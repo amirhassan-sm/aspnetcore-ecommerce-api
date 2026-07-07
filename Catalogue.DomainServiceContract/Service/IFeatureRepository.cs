@@ -19,7 +19,8 @@ namespace Catalogue.DomainServiceContract.Service
         Task<bool> IsFeatureNameExistExceptCurrent(int FeatureId,string FeatureName);
         Task<bool> HasFeatureAssigned(int FeatureId);
 
-        // search in query service
+       
+
 
 
     }

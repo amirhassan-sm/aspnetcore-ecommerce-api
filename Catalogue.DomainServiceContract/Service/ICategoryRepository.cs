@@ -49,6 +49,9 @@ namespace Catalogue.DomainServiceContract.Service
         Task AssignFeatureToProductsAsync(int featureId, List<int> productIds);
         Task<bool> IsFeatureExist(int featureId);
         Task RemoveFeatureFromProductsAsync(int featureId , List<int> productIds);
+        Task RemoveAllFeaturesFromCategory(int categoryId);
+        
+
 
 
 

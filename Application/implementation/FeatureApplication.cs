@@ -76,28 +76,94 @@ namespace Application.implementation
         {
             try
             {
+                
                 if (!await repo.IsFeatureExist(FeatureId))
                 {
-                    return  GenericOperationResult<FeatureModel>.ToFail();
+                    return GenericOperationResult<FeatureModel>.ToFail("faied to get", new List<string> { "this feature does not exist" });
 
 
                 }
+                var feature = await repo.Get(FeatureId);
+                var result = new FeatureModel
+                {
+                    FeatureId = feature.FeatureId,
+                    FeatureDescription = feature.FeatureDescription,
+                    FeatureName = feature.FeatureName,
+
+                };
+                return GenericOperationResult<FeatureModel>.ToSuccess(FeatureId, "get succees", result);
+            }
+            catch (Exception ex) {
+                logger.LogError(ex, "failed to get {FeatureId}", FeatureId);
+                return GenericOperationResult<FeatureModel>.ToFail("faied to get", new List<string> { "an unexpected error occured" });
+
+
             }
         }
 
-        public Task<OperationResult> Remove(int FeatureId)
+        public async Task<OperationResult> Remove(int FeatureId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!await repo.IsFeatureExist(FeatureId))
+                {
+                    return OperationResult.ToFail("failed to remove", new List<string> {"this feature does not exist"});
+                    
+                }
+                if (await repo.HasFeatureAssigned(FeatureId))
+                {
+                    return OperationResult.ToFail("failed to remove", new List<string> {"this feature assigned toa product or catergory"});
+                    
+                }
+                await repo.Remove(FeatureId);
+
+                return OperationResult.ToSuccess(FeatureId,"removed successfully");
+               
+
+            }
+            catch (Exception ex) {
+                logger.LogError(ex, "failed to remove feature {FeatureId}", FeatureId);
+
+                return OperationResult.ToFail("failed to remove", new List<string> { "an unexpected error occured" });
+
+
+
+            }
         }
 
-        public Task<GenericComplexResult<FeatureSearchModel, FeatureListItem>> Search(FeatureSearchModel sm)
+        public async Task<GenericComplexResult<FeatureSearchModel, FeatureListItem>> Search(FeatureSearchModel sm)
         {
-            throw new NotImplementedException();
+            return await queryServices.Search(sm);
         }
 
-        public Task<OperationResult> Update(FeatureModel model)
+        public async Task<OperationResult> Update(FeatureModel model)
         {
-            throw new NotImplementedException();
+            try {
+                if (!await repo.IsFeatureExist(model.FeatureId))
+                {
+                    return OperationResult.ToFail("failed to update", new List<string> { "this Feature does not exists" });
+                    
+                }
+                if (await repo.IsFeatureNameExistExceptCurrent(model.FeatureId,model.FeatureName))
+                {
+                    return OperationResult.ToFail("failed to update", new List<string> { "this name already exist" });
+
+
+                }
+               await repo.Update(MapModelToFeature(model));
+                return OperationResult.ToSuccess("update succeed");
+
+
+
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "failed to update feature {FeatureId} ", model.FeatureId);
+                return OperationResult.ToFail("failed to update", new List<string> { "an unexpected error occured" });
+
+            }
         }
+
+     
     }
 }

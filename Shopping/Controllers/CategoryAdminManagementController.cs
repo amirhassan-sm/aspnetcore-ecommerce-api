@@ -102,11 +102,11 @@ namespace Shopping.Controllers
 
 
         }
-        [HttpDelete("RemoveFeatureFromCategory")]
+        [HttpDelete("RemoveFeatureFromCategory/{FeatureId}/{CategoryId}")]
         public async Task<IActionResult> RemoveFeatureFromCategory([FromRoute]int FeatureId, int CategoryId)
         {
             var op = await CatApp.RemoveFeatureToCategory(CategoryId, FeatureId);
-            if (op.Success == true) { 
+            if (op.Success ) { 
             return Ok(op);
             }
 

@@ -31,6 +31,10 @@ namespace Catalogue.DomainServiceContract.Service
 
         Task<bool> IsFeaureExistAsync(int FeatureId);
         Task<bool> IsProductFeatureExistAsync(int productid , int FeatureId);
+        Task RemoveAllFeaturesFromProduct(int id);
+
+        Task SetFeatureValues(int productId , int fetureId,  string value);
+   
        
 
 

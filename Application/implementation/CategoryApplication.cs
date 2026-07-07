@@ -233,6 +233,7 @@ namespace Application.implementation
 
             try
             {
+                await repo.RemoveAllFeaturesFromCategory(id);
 
                 await repo.Remove(id);
                 return OperationResult.ToSuccess(id, "Category Removed successfuly ");

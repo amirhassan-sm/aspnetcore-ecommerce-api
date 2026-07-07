@@ -12,10 +12,11 @@ namespace Application.Contrast.Services
     public interface IFeatureApplicationServiceContract
     {
         Task<GenericOperationResult<FeatureModel>> Get(int FeatureId);
-        Task<OperationResult> AddNew(FeatureModel model);
+        Task<OperationResult> AddNew(FeatureAddModel model);
         Task<OperationResult> Remove(int FeatureId);
-        Task<OperationResult> Update(FeatureAddModel model);
+        Task<OperationResult> Update(FeatureModel model);
         Task<GenericComplexResult<FeatureSearchModel, FeatureListItem>> Search(FeatureSearchModel sm);
+        
 
     }
 }

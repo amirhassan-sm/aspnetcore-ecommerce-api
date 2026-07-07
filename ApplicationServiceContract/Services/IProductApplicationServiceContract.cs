@@ -22,6 +22,7 @@ namespace Application.Contrast.Services
         Task<GenericOperationResult<List<ProductFeaturesModel>>> GetAllProductFeatures(int ProductId);
         Task<OperationResult> AssignFeatureToProductAsync(int FeatureId, int ProductId);
         Task<OperationResult> RemoveFeaturesFromProductAsync(int FeatureId, int ProductId);
+        Task<OperationResult> SetFeatureValues(SetProductFeatureModel model);
 
     }
 }

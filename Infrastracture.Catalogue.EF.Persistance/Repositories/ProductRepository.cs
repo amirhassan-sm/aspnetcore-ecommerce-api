@@ -173,6 +173,13 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
         }
 
+        public async Task RemoveAllFeaturesFromProduct(int id)
+        {
+            var features = db.ProductFeatures.Where(x=>x.FeatureId==id);
+            db.RemoveRange(features);
+            await db.SaveChangesAsync();
+        }
+
         public async Task RemoveFeaturesFromProductAsync(int FeatureId, int ProductId)
         {
             var ProdFeature = await db.ProductFeatures.FirstOrDefaultAsync(x => x.FeatureId==FeatureId && x.ProductId==ProductId);
@@ -180,6 +187,13 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             db.ProductFeatures.Remove(ProdFeature);
             await db.SaveChangesAsync();
            
+        }
+
+        public async Task SetFeatureValues(int productId, int fetureId, string value)
+        {
+            var fetuer = db.ProductFeatures.FirstOrDefault(x=>x.FeatureId == fetureId&& x.ProductId==productId);
+            fetuer.Value = value;
+            await db.SaveChangesAsync();
         }
 
         public async Task setSeoAsync(Product Product)

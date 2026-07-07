@@ -1,5 +1,6 @@
 ﻿using Application.Contrast.Services;
 using Application.DTOs.Product;
+using Application.DTOs.ProductFeatures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -97,8 +98,8 @@ namespace Shopping.Controllers
             }
             return Ok(result);
         }
-        [HttpPost("assigneFeatureToProduct")]
-        public async Task<IActionResult> assigneFeatureToProduct([FromBody]int ProductId,int FeatureId)
+        [HttpPost("assigneFeatureToProduct/{ProductId}/{FeatureId}")]
+        public async Task<IActionResult> assigneFeatureToProduct([FromRoute]int ProductId,int FeatureId)
         {
             var result = await productApp.AssignFeatureToProductAsync(FeatureId:FeatureId,ProductId:ProductId);
             if (!result.Success)
@@ -111,8 +112,8 @@ namespace Shopping.Controllers
 
         }
 
-        [HttpDelete("RemoveFeatureFromProduct")]
-        public async Task<IActionResult> RemoveFeatureFromProduct([FromBody] int ProductId, int FeatureId)
+        [HttpDelete("RemoveFeatureFromProduct/{ProductId}/{FeatureId}")]
+        public async Task<IActionResult> RemoveFeatureFromProduct([FromRoute] int ProductId, int FeatureId)
         {
             var result = await productApp.RemoveFeaturesFromProductAsync(FeatureId: FeatureId, ProductId: ProductId);
             if (!result.Success)
@@ -124,6 +125,20 @@ namespace Shopping.Controllers
 
 
         }
+
+        [HttpPut("SetFeaturesValue")]
+        public async Task<IActionResult> SetFeaturesValue([FromBody]SetProductFeatureModel model)
+        {
+            var result = await productApp.SetFeatureValues(model);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+                
+            }
+            return Ok(result);
+
+        }
+
 
 
 
