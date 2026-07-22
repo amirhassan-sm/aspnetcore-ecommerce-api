@@ -16,8 +16,8 @@ namespace Application.implementation
     public class CategoryApplication : ICategoryApplicationServiceContract
     {
         private readonly ICategoryRepository repo;
-        private readonly IProductApplicationServiceContract prodApp;
-        public CategoryApplication(ICategoryRepository repo, IProductApplicationServiceContract prodApp)
+        //private readonly IProductApplicationServiceContract prodApp;
+        public CategoryApplication(ICategoryRepository repo)
         {
             this.repo = repo;
 
@@ -65,11 +65,11 @@ namespace Application.implementation
 
             if (await repo.ExistCategoryName(model.CategoryName))
             {
-                return OperationResult.ToFail("add failed", new List<string>() { "name Already Exist" });
+                return OperationResult.ToFail("add failed", new List<string>() { "name Already Exist" },"CategoryName_Already_Exist");
             }
             if (await repo.ExistSlugName(model.Slug))
             {
-                return OperationResult.ToFail("add failed", new List<string> { "slug already exist" });
+                return OperationResult.ToFail("add failed", new List<string> { "slug already exist" },"Slug_Already_Exist");
 
 
             }
@@ -84,12 +84,12 @@ namespace Application.implementation
                 Category parent = await repo.Get(model.ParentId.Value);
                 if (parent == null)
                 {
-                    return OperationResult.ToFail("Add Failed", new List<string> { "this parent dose not exist" });
+                    return OperationResult.ToFail("Add Failed", new List<string> { "this parent dose not exist" },"Parent_Is_Null");
 
                 }
                 if (parent.Depth == 3)
                 {
-                    return OperationResult.ToFail("add failed", new List<string>() { "Depth can't be more than 3 " });
+                    return OperationResult.ToFail("add failed", new List<string>() { "Depth can't be more than 3 " }, "Depth_Is_BiggerThan3");
 
                 }
                 depth = parent.Depth.Value + 1;
@@ -109,7 +109,7 @@ namespace Application.implementation
             catch
             {
 
-                return OperationResult.ToFail("Add Failed", new List<string>());
+                return OperationResult.ToFail("Add Failed", new List<string> {"an unexpected error occured"},"ExcetionThrows");
             }
             string Lineage = "";
             if (model.ParentId == null)
@@ -138,24 +138,26 @@ namespace Application.implementation
             {
                 if (!await repo.IsCategoryExist(categoryId))
                 {
-                    return OperationResult.ToFail("Failed to assign", new List<string> {"this category does not exist" });
+                    return OperationResult.ToFail("Failed to assign", new List<string> {"this category does not exist" }, "Categor_Not_exist");
                     
                 }
                 if (!await repo.IsFeatureExist(FeaturId) )
                 {
-                    return OperationResult.ToFail("Failed to assign", new List<string> { "this feature does not exist" });
+                    return OperationResult.ToFail("Failed to assign", new List<string> { "this feature does not exist" },"Feature_Not_Exist");
 
                 }
                 if (await repo.ExistCategoryFeature(categoryId, FeaturId))
                 {
-                    return OperationResult.ToFail("assign failed", new List<string> { "This Feature Already assigned" });
+                    return OperationResult.ToFail("assign failed", new List<string> { "This Feature Already assigned" },"CategoryFeature_Already_Exist");
                 }
 
                 var cat = await repo.Get(categoryId);
                 
                 if (cat.Depth != 3)
                 {
-                    return OperationResult.ToFail("assign failed", new List<string> { " feature can only assign to level 3 category (depth must be three)" });
+                    return OperationResult
+                        .ToFail("assign failed", new List<string> { " feature can only assign to level 3 category (depth must be three)" }
+                        ,"Category_IsNot_Level3");
 
                 }
 
@@ -172,9 +174,9 @@ namespace Application.implementation
 
 
             }
-            catch
+            catch(Exception ex)
             {
-                return OperationResult.ToFail("an unexpected error occured", new List<string>());
+                return OperationResult.ToFail("assign failed", new List<string> { "an unexpected error occured" }, "Exception_Occured");
 
             }
         }
@@ -186,7 +188,8 @@ namespace Application.implementation
                 var cat = await repo.Get(Categoryid);
                 if (cat == null)
                 {
-                    return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("Get Failed", new List<string> { "this category dose not exist" });
+                    return GenericOperationResult<List<CategoryUpdateModel>>
+                        .ToFail("Get Failed", new List<string> { "this category dose not exist" },"Category_Not_Exist");
                 }
                 CategoryUpdateModel ViewCat = new CategoryUpdateModel
                 {
@@ -202,10 +205,11 @@ namespace Application.implementation
 
 
             }
-            catch
+            catch(Exception ex)
             {
 
-                return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("Get Failed", new List<string> { "can not find this category" });
+                return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("Get Failed", new List<string> { "can not find this category" }
+                ,"Execption_Occured");
 
             }
         }
@@ -215,19 +219,19 @@ namespace Application.implementation
             //sub cat
             if (await repo.HasChildCategory(id))
             {
-                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category Has Child" });
+                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category Has Child" },"Category_Has_Child");
 
             }
             //sub product
             if (await repo.HasProductCategory(id))
             {
-                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category Has Product" });
+                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category Has Product" }, "Category_Has_Product");
 
             }
             //if this cat exist
             if (!await repo.IsCategoryExist(id))
             {
-                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category dose not exist" });
+                return OperationResult.ToFail(id, "remove failed", new List<string> { "Category dose not exist" },"Category_DoesNot_Exist");
 
             }
 
@@ -236,11 +240,11 @@ namespace Application.implementation
                 await repo.RemoveAllFeaturesFromCategory(id);
 
                 await repo.Remove(id);
-                return OperationResult.ToSuccess(id, "Category Removed successfuly ");
+                return OperationResult.ToSuccess(id, "Category Removed successfully ");
             }
             catch
             {
-                return OperationResult.ToFail(id, "remove failed", new List<string> { "can not remove this category" });
+                return OperationResult.ToFail(id, "remove failed", new List<string> { "can not remove this category" }, "Exception_Occured");
 
 
             }
@@ -254,17 +258,19 @@ namespace Application.implementation
             {
                 if (!await repo.IsCategoryExist(categoryId))
                 {
-                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Category does not exist" });
+                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Category does not exist" }, "Category_Not_Exist");
                     
                 }
                 if (!await repo.IsFeatureExist(FeaturId))
                 {
-                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Feature does not exist" });
+                    return OperationResult.ToFail("failed to remove Category Feature", new List<string> { "this Feature does not exist" }
+                    , "Feature_Not_Exist");
 
                 }
                 if (! await repo.ExistCategoryFeature(categoryId,FeaturId))
                 {
-                    return OperationResult.ToFail("failed to remove Category Feature",new List<string> {"this category feature does not exist"});
+                    return OperationResult.ToFail("failed to remove Category Feature"
+                        ,new List<string> {"this category feature does not exist"}, "CategoryFeature_DoesNot_Exist");
                     
                 }
                 var id = await repo.RemoveFeatureToCategory(categoryId, FeaturId);
@@ -278,7 +284,7 @@ namespace Application.implementation
             }
             catch(Exception ex)
             {
-                return OperationResult.ToFail("remove failed", new List<string> { "there is a problem to remove this feature " });
+                return OperationResult.ToFail("remove failed", new List<string> { "there is a problem to remove this feature " }, "Exception_Throws");
 
             }
         }
@@ -297,6 +303,7 @@ namespace Application.implementation
 
         public async Task<OperationResult> Update(CategoryUpdateModel model)
         {
+            //check parent and cat id not same 
             string OldParentLineAge = "";
             int NewParentDepth;
             string NewParentLineAge = "";
@@ -312,31 +319,46 @@ namespace Application.implementation
 
 
             };
-            // there is this model in db
+            
             var oldnode = await repo.Get(model.CategoryId);
+            if (oldnode ==null) {
 
-            //check if name is unique
+                return OperationResult.ToFail(cat.CategoryId , "Update Fialed", new List<string> {"this category does not exist"}, "Category_Not_Exist");
+            
+            }
+
+            
 
             if (await repo.ExistCategoryNameExceptCurrentAsync(cat.CategoryId,cat.CategoryName))
             {
-                return OperationResult.ToFail(cat.CategoryId, "Update Fialed", new List<string> { " this name already ssigned to another category" });
+                return OperationResult.ToFail(cat.CategoryId, "Update Fialed", new List<string> { " this name already ssigned to another category" }, "CategoryName_Already_exist");
             }
 
-            //todo duplicate slug 
+            
             if (await repo.ExistCategorySlugExceptCurrentAsync(cat.CategoryId,cat.Slug))
             {
-                return OperationResult.ToFail("update failed", new List<string> { " this slug already exist " });
+                return OperationResult.ToFail("update failed", new List<string> { " this slug already exist " },"Category_Slug_AlreadyExist");
+            }
+
+            if (model.ParentId == model.CategoryId)
+            {
+                return OperationResult.ToFail(
+                    model.CategoryId,
+                    "Update Failed",
+                    new List<string>
+                    {
+            "A category cannot be its own parent."
+                    },
+                    "Category_CannotBe_OwnParent");
             }
 
 
 
 
-            // avoid circular relations 
-
-            //checked if the new parent id is exist
 
 
-            if (oldnode.ParentId != cat.ParentId)
+
+            if (oldnode.ParentId != cat.ParentId) 
             {
 
 
@@ -351,7 +373,7 @@ namespace Application.implementation
 
 
 
-
+                  
                 var NewparentNode = await repo.Get(cat.ParentId ??0);
                 if (NewparentNode != null)
                 {
@@ -369,14 +391,17 @@ namespace Application.implementation
                 var ChildrenRealativeDepth = await repo.GetChildNodeLevels(cat.CategoryId);
                 if (ChildrenRealativeDepth + NewParentDepth > 3)
                 {
-                    return OperationResult.ToFail(cat.CategoryId, "Update Failed", new List<string> { " can not update becuase with this new parnt depth will exceed 3" });
+                    return OperationResult.ToFail(cat.CategoryId, "Update Failed",
+                        new List<string> { " can not update becuase with this new parnt depth will exceed 3" },"Depth_Exceed_Limit");
                 }
 
-                var nodeChildes = await repo.GetChildren(cat.CategoryId);
+                
                 if (NewparentNode?.LineAge?.Contains($"{model.CategoryId}," )==true)
                 {
-                    return OperationResult.ToFail(model.CategoryId, "Update Failed", new List<string> { " a node can not be it's own child " });
+                    return OperationResult.ToFail(model.CategoryId, "Update Failed", new List<string> { " a node can not be it's own child " }
+                    ,"loop_tree");
                 }
+                var nodeChildes = await repo.GetChildren(cat.CategoryId);
 
 
                 foreach (var child in nodeChildes)
@@ -412,7 +437,7 @@ namespace Application.implementation
             {
                 return OperationResult.ToSuccess(cat.CategoryId, "Category Updated");
             }
-            return OperationResult.ToFail(cat.CategoryId, "Update Fialed", new List<string>());
+            return OperationResult.ToFail(cat.CategoryId, "an unexpected error occured", new List<string>(), "Exception_Occured");
 
 
         }
@@ -422,7 +447,7 @@ namespace Application.implementation
             if (!await repo.IsCategoryExist(CategoryId))
             {
                 return GenericOperationResult<List<CategoryFeatureModel>>.ToFail("failed to get", new List<string>
-            {"this category does not exist"});
+            {"this category does not exist"},"Category_Not_Exist");
 
 
             }
@@ -441,7 +466,7 @@ namespace Application.implementation
             }
             catch (Exception ex) {
                 return GenericOperationResult<List<CategoryFeatureModel>>.ToFail("failed to get", new List<string>
-            {"an unexpected error occures"});
+            {"an unexpected error occures"},"Exception_Occured");
 
             }
 
@@ -476,7 +501,7 @@ namespace Application.implementation
                return GenericOperationResult<List<CategoryUpdateModel>>.ToFail("failed to get root categories", new List<string> {
                 "an unexpected error occured"
                 
-                });
+                },"Exception_Occured");
             }
         }
     }

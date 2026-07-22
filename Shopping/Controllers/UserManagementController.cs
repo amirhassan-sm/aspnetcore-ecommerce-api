@@ -18,14 +18,14 @@ namespace Shopping.Controllers
         private readonly IUserService userService;
 
 
-       
-       public UserManagementController(UserManager<ApplicationUser> userManager, IUserService userService)
+
+        public UserManagementController(UserManager<ApplicationUser> userManager, IUserService userService)
         {
             this.userManager = userManager;
             this.userService = userService;
 
         }
-        
+
         [HttpGet("me")]
         public async Task<IActionResult> me()
         {
@@ -81,7 +81,7 @@ namespace Shopping.Controllers
             //chech user
             try
             {
-                var result = await userService.UpdateProfile( userid.ToString() ,user);
+                var result = await userService.UpdateProfile(userid.ToString(), user);
                 if (result.Success)
                 {
                     return Ok(result);
@@ -90,24 +90,39 @@ namespace Shopping.Controllers
 
 
             }
-            catch (Exception ex) { 
+            catch (Exception ex) {
                 return StatusCode(500);
-               
-            
-            }
-            
 
-            
+
+            }
+
+
+
         }
 
 
 
 
-       
+
         [HttpGet("getAll")]
         public async Task<IActionResult> getAll()
         {
             var response = await userService.GetAllUsersAsync();
+            if (!response.Success)
+            {
+                return BadRequest(response);
+
+            }
+            return Ok(response);
+
+
+
+        }
+        //TODO DELETE USERS 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id) {
+
+            var response = await userService.DeleteUser(id);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -118,7 +133,9 @@ namespace Shopping.Controllers
 
 
         }
-        //TODO DELETE USERS 
+
+        
+
 
 
     }

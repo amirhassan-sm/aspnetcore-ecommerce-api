@@ -34,7 +34,7 @@ namespace Catalogue.DomainServiceContract.Service
 
         Task<List<Category>> GetChildren(int CategoryID);
 
-        Task<bool> HasProduct(int categoryId);
+        //Task<bool> HasProduct(int categoryId);
 
         
        

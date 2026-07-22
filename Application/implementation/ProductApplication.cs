@@ -109,6 +109,7 @@ namespace Application.implementation
                         , new List<string> { "Only level 3 categories can contain products." });
 
                 }
+                //price can not be negetive 
 
 
 

@@ -16,15 +16,16 @@ namespace Application.Common.BaseModel
 
         public string Message { get; private set; }
         public List<string> Errors { get; private set; } = new List<string>();
+        public string? ErrorCode { get; set; }
 
- 
+
 
         public TItems? Item { get; private set ; }  = default(TItems);
 
 
         public DateTime OperationDate { get; private set; } = DateTime.UtcNow;
 
-        private GenericOperationResult(int? RecordId, string messege, bool success, List<string> Errors , TItems?  item = default  )
+        private GenericOperationResult(int? RecordId, string messege, bool success, List<string> Errors , TItems?  item = default,string? errorCode =null )
         {
             this.RecordId = RecordId;
             this.Message = messege;
@@ -32,6 +33,8 @@ namespace Application.Common.BaseModel
             this.Errors = Errors;
            
             this.Item = item ;
+            this.ErrorCode = errorCode;
+            this.ErrorCode = errorCode;
 
         }
 
@@ -62,6 +65,18 @@ namespace Application.Common.BaseModel
         {
 
             return new GenericOperationResult<TItems>(null, messege, false, Errors);
+
+        }
+        public static GenericOperationResult<TItems> ToFail(int RecordId, string messege, List<string> Errors,string? errorCode)
+        {
+
+            return new GenericOperationResult<TItems>(RecordId, messege, false, Errors, default,errorCode);
+
+        }
+        public static GenericOperationResult<TItems> ToFail( string messege, List<string> Errors, string? errorCode)
+        {
+
+            return new GenericOperationResult<TItems>(null, messege, false, Errors, default, errorCode);
 
         }
 

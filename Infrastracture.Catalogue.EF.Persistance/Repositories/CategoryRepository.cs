@@ -222,23 +222,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             return cats;
         }
 
-        public async Task<bool> HasProduct(int categoryId)
-        {
-            try
-            {
-
-                return await db.products.AnyAsync(x => x.CategoryId == categoryId);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw new Exception(ex.Message);
-
-
-
-            }
-        }
+    
 
         public async Task<bool> ExistCategoryNameExceptCurrentAsync(int categoryId, string categoryName)
         {

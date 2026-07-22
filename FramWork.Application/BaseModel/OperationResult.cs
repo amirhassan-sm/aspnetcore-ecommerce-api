@@ -15,20 +15,23 @@ namespace Application.Common.BaseModel
         public bool Success { get; private set; } = false;
 
         public string Message { get; private set; }
+
         public List<string> Errors { get; private set; } = new List<string>();
+        public string? ErrorCode { get; private set; }
 
 
 
 
         public DateTime OperationDate { get; private set; } = DateTime.UtcNow;
 
-        private OperationResult(int? RecordId, string messege, bool success, List<string> Errors)
+        private OperationResult(int? RecordId, string messege, bool success, List<string> Errors,string? errorCode =null  )
         {
             this.RecordId = RecordId;
             this.Message = messege;
             this.Success = success;
             this.Errors = Errors;
-            
+            this.ErrorCode= errorCode;
+
 
         }
 
@@ -39,7 +42,7 @@ namespace Application.Common.BaseModel
 
         }
 
-        public static OperationResult ToSuccess( string messege)
+        public static OperationResult ToSuccess(string messege)
         {
             return new OperationResult(null, messege, true, new List<string>());
 
@@ -55,6 +58,18 @@ namespace Application.Common.BaseModel
         {
 
             return new OperationResult(null, messege, false, Errors);
+
+        }
+        public static OperationResult ToFail(string messege, List<string> Errors,string errorCode )
+        {
+
+            return new OperationResult(null, messege, false, Errors,errorCode);
+
+        }
+        public static OperationResult ToFail( int RecordId,string messege, List<string> Errors, string errorCode)
+        {
+
+            return new OperationResult(RecordId, messege, false, Errors, errorCode);
 
         }
     }

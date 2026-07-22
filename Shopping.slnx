@@ -14,5 +14,8 @@
     <Project Path="Infrastracture.Catalogue.EF.Persistance/Infrastracture.Catalogue.EF.Persistance.csproj" Id="760259d0-f47b-42d6-9856-a2f6a180def4" />
     <Project Path="Security/Infrastracture.Security.csproj" Id="6f08b99f-5b25-4d3e-b6f5-a2cd87259337" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Application.Tests/Application.Tests.csproj" Id="c274d25f-06c4-4684-b45a-be36523f61b5" />
+  </Folder>
   <Project Path="Shopping/Shopping.csproj" />
 </Solution>
