@@ -58,8 +58,9 @@ namespace Shopping.Controllers
                 var jwt = await auth.GenerateToken(user);
                 var refresh =  auth.GenerateRefreshToken();
                 user.RefreshToken=refresh;
-                user.RefreshTokenExpiryTime.AddDays(7);
-               await userManager.UpdateAsync(user);
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                //user.RefreshTokenExpiryTime.AddDays(7);
+                await userManager.UpdateAsync(user);
                 
 
 
