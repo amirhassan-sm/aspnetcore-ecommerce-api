@@ -61,7 +61,7 @@ namespace Application.Tests.Product
                 CategoryId = 5,
                 BasePrice = 1200,
                 Slug = "laptop",
-                ImageUrl = "img.jpg"
+                //ImageUrl = "img.jpg"
             };
 
             mockRepo.Setup(x => x.Get(productId)).ReturnsAsync(product);

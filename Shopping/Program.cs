@@ -4,6 +4,7 @@ using Application.Contrast.Services;
 using Application.implementation;
 using Catalogue.DomainServiceContract.Service;
 using Infrastracture.Catalogue.EF.Persistance;
+using Infrastracture.Catalogue.EF.Persistance.FileStorage;
 using Infrastracture.Catalogue.EF.Persistance.Querie;
 using Infrastracture.Catalogue.EF.Persistance.Repositories;
 using Infrastracture.Security.Repository;
@@ -36,7 +37,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(optionAction =>
 }).AddEntityFrameworkStores<SecurityContext>().AddDefaultTokenProviders();
 
 
- 
+
 
 var secretKey = builder.Configuration["jwt:SecretKey"];
 
@@ -73,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Description = "Enter JWT token like this: Bearer {your token}"
-    }); 
+    });
 
     // 2️⃣ Require JWT globally (optional but recommended)
     options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -107,16 +108,19 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryApplicationServiceContract, CategoryApplication>();
 builder.Services.AddScoped<IAuth, Auth>();
-builder.Services.AddScoped<IUserService,UserServices>();
+builder.Services.AddScoped<IUserService, UserServices>();
 builder.Services.AddScoped<IRoleServices, RoleServices>();
 builder.Services.AddScoped<IUserRoleServices, UserRoleServices>();
 builder.Services.AddScoped<Application.Contrast.Repositories.IUserManegment, Infrastracture.Security.Repository.Usermanagement>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductQueryServices, ProductQueries>();
-builder.Services.AddScoped<IProductApplicationServiceContract ,  ProductApplication>();
+builder.Services.AddScoped<IProductApplicationServiceContract, ProductApplication>();
 builder.Services.AddScoped<IFeatureRepository, FeatureRepository>();
 builder.Services.AddScoped<IFeatureQueryServices, FeatureQueries>();
-builder.Services.AddScoped<IFeatureApplicationServiceContract , FeatureApplication>();
+builder.Services.AddScoped<IFeatureApplicationServiceContract, FeatureApplication>();
+builder.Services.AddScoped<IProductMediaRepository, ProductMediaRepository>();
+builder.Services.AddScoped<IProductMediaService, ProductMediaService>();
+builder.Services.AddScoped<IFileStorage, FileStorage>();
 
 //builder.Services.AddHttpClient("shop", client =>
 //{
@@ -140,7 +144,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseAuthorization();

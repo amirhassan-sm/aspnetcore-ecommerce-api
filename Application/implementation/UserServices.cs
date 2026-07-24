@@ -37,13 +37,13 @@ namespace Application.implementation
                 var user = await userManager.FindByIdAsync(id.ToString());
                 if (user == null)
                 {
-                    return OperationResult.ToFail("failed to delete", new List<string> { "this user does not exist" });
+                    return OperationResult.ToFail("failed to delete", new List<string> { "this user does not exist" }, "User_Not_Exist");
 
                 }
                 var result = await userManager.DeleteAsync(user);
                 if (!result.Succeeded)
                 {
-                    return OperationResult.ToFail(user.Id, "failed to delete", result.Errors.Select(x => x.Description).ToList());
+                    return OperationResult.ToFail(user.Id, "failed to delete", result.Errors.Select(x => x.Description).ToList(),"Delete_Failed");
 
 
                 }
@@ -51,7 +51,7 @@ namespace Application.implementation
 
             }
             catch (Exception ex) {
-                return OperationResult.ToFail("failed to delete", new List<string> { "an unexpected error occured"});
+                return OperationResult.ToFail("failed to delete", new List<string> { "an unexpected error occured"}, "Exception_Occured");
             
             }
         }
@@ -67,7 +67,7 @@ namespace Application.implementation
             }
             catch (Exception ex) {
                 return GenericOperationResult<List<UserProfileDto>>
-                    .ToFail("failed to get list", new List<string> {" an unexpected error occured"});
+                    .ToFail("failed to get list", new List<string> {" an unexpected error occured"}, "Exception_Occured");
 
 
 
@@ -106,7 +106,7 @@ namespace Application.implementation
                 var user = await userManager.FindByIdAsync(id);
                 if (user == null)
                 {
-                    return OperationResult.ToFail("update failed", new List<string> { "this User dose not exist" });
+                    return OperationResult.ToFail("update failed", new List<string> { "this User dose not exist" }, "User_Not_exist");
 
                 }
                 user.UserName = dto.UserName;
@@ -119,7 +119,7 @@ namespace Application.implementation
                     if (!resultPass.Succeeded)
                     {
                         var error = resultPass.Errors.Select(x => x.Description).ToList();
-                        return OperationResult.ToFail("failed to update", error);
+                        return OperationResult.ToFail("failed to update", error,"Failed_To_changePassword");
 
                     }
 
@@ -140,11 +140,12 @@ namespace Application.implementation
                 errors = result.Errors.Select(x => x.Description).ToList();
 
 
-                return OperationResult.ToFail(user.Id, "failed to update User", errors);
+                return OperationResult.ToFail(user.Id, "failed to update User but password updated", errors, "UpdateUser_Failed");
+
             }
             catch (Exception ex)
             {
-                return OperationResult.ToFail("update failed", new List<string> { ex.Message });
+                return OperationResult.ToFail("update failed", new List<string> { ex.Message }, "Exception_Occured");
 
             }
         }

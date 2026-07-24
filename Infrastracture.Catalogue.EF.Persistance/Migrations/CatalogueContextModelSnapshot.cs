@@ -117,6 +117,9 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
                     b.HasKey("FeatureId");
 
+                    b.HasIndex("FeatureName")
+                        .IsUnique();
+
                     b.ToTable("features");
                 });
 
@@ -163,10 +166,6 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ExtraData")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ImageUrl")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -244,6 +243,9 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Property<string>("ConfirmByUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsConfirmed")
                         .HasColumnType("bit");

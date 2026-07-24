@@ -26,7 +26,7 @@ namespace Application.implementation
         {
             if (await roleManager.RoleExistsAsync(model.RoleName))
             {
-                return OperationResult.ToFail("failed to add the role", new List<string> { "this role already exist" });
+                return OperationResult.ToFail("failed to add the role", new List<string> { "this role already exist" },"Role_Already_Exist");
 
             }
             var role = new ApplicationRole();
@@ -35,7 +35,7 @@ namespace Application.implementation
             var result = await roleManager.CreateAsync(role);
             if (!result.Succeeded)
             {
-                return OperationResult.ToFail("failed to add role", result.Errors.Select(x => x.Description).ToList());
+                return OperationResult.ToFail("failed to add role", result.Errors.Select(x => x.Description).ToList(),"Add_Role_Failed");
 
             }
             return OperationResult.ToSuccess(role.Id, "role added successfully");
@@ -49,13 +49,13 @@ namespace Application.implementation
                 var role = await roleManager.FindByIdAsync(id.ToString());
                 if (role == null)
                 {
-                    return OperationResult.ToFail("delete failed ", new List<string> { "this role does not exist" });
+                    return OperationResult.ToFail("delete failed ", new List<string> { "this role does not exist" },"Role_Not_Exist");
 
                 }
                 var result = await roleManager.DeleteAsync(role);
                 if (!result.Succeeded)
                 {
-                    return OperationResult.ToFail("delete failed ", result.Errors.Select(x => x.Description).ToList());
+                    return OperationResult.ToFail("delete failed ", result.Errors.Select(x => x.Description).ToList(),"Delete_Role_Failed");
 
 
                 }
@@ -63,7 +63,7 @@ namespace Application.implementation
             }
             catch (Exception ex)
             {
-                return OperationResult.ToFail("delete failed", new List<string> { ex.Message });
+                return OperationResult.ToFail("delete failed", new List<string> { ex.Message },"Exception_Occured");
             }
         }
 
@@ -105,7 +105,7 @@ namespace Application.implementation
                 var role = await roleManager.FindByIdAsync(id.ToString());
                 if (role == null)
                 {
-                    return OperationResult.ToFail("failed to update", new List<string> { "this role does not exist" });
+                    return OperationResult.ToFail("failed to update", new List<string> { "this role does not exist" }, "Role_Not_Exist");
 
                 }
                 role.Name = model.RoleName;
@@ -113,7 +113,7 @@ namespace Application.implementation
                 var result = await roleManager.UpdateAsync(role);
                 if (!result.Succeeded)
                 {
-                    return OperationResult.ToFail("failed to update role", result.Errors.Select(x => x.Description).ToList());
+                    return OperationResult.ToFail("failed to update role", result.Errors.Select(x => x.Description).ToList(), "Update_Role_Failed");
 
 
                 }
@@ -124,7 +124,7 @@ namespace Application.implementation
             {
                 
 
-                return OperationResult.ToFail("update failed", new List<string> { "an unecpected error occured" });
+                return OperationResult.ToFail("update failed", new List<string> { "an unecpected error occured" }, "Exception_Occured");
 
 
             }

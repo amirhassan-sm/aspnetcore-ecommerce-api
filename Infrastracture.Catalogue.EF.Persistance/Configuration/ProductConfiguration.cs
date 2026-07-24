@@ -15,7 +15,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Configuration
         {
             builder.Property(x => x.ProductName).IsRequired().HasMaxLength(300);
             builder.Property(x => x.ProductDescription).IsRequired(false).HasMaxLength(1500);
-            builder.Property(x => x.ImageUrl).IsRequired(false).HasMaxLength(1000);
+            
             builder.Property(x => x.Introduction).IsRequired(false).HasMaxLength(1000);
             builder.Property(x => x.ExtraData).IsRequired(false).HasMaxLength(1000);
             builder.Property(x => x.BodyExtraData).IsRequired(false).HasMaxLength(1000);

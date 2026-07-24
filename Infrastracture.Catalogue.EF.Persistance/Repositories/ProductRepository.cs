@@ -229,7 +229,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             prod.BasePrice = model.BasePrice;
             prod.Introduction = model.Introduction;
             prod.ExtraData = model.ExtraData;
-            prod.ImageUrl = model.ImageUrl;
+           
             prod.BodyExtraData  = model.BodyExtraData;
             prod.AvailableProductCount = model.AvailableProductCount;
             prod.Slug = model.Slug;

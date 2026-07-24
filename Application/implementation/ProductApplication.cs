@@ -34,7 +34,7 @@ namespace Application.implementation
                 ProductDescription = model.ProductDescription,
                 CategoryId = model.CategoryId,
                 BasePrice = model.BasePrice,
-                ImageUrl = model.ImageUrl,
+               
                 Introduction = model.Introduction,
                 AvailableProductCount = model.AvailableProductCount,
 
@@ -73,7 +73,7 @@ namespace Application.implementation
                 AvailableProductCount = model.AvailableProductCount,
                 BasePrice = model.BasePrice,
                 CategoryId = model.CategoryId,
-                ImageUrl = model.ImageUrl,
+                
                 Introduction = model.Introduction,
                 ProductDescription = model.ProductDescription,
                 ProductName = model.ProductName,
@@ -171,7 +171,7 @@ namespace Application.implementation
                     BasePrice = response.BasePrice,
                     BodyExtraData = response.BodyExtraData,
                     ExtraData = response.ExtraData,
-                    ImageUrl = response.ImageUrl,
+                    
                     Introduction = response.Introduction,
                     MetaDescription = response.MetaDescription,
                     MetaTag = response.MetaTag,
