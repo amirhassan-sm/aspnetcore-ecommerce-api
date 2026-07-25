@@ -26,22 +26,59 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
 
         public async Task<ProductMedia?> GetByIdAsync(int id)
         {
-            return await db.productMedias.FirstOrDefaultAsync(x=>x.MediaTypeId == id);
+            return await db.productMedias.FirstOrDefaultAsync(x=>x.ProductMediaId == id);
 
         }
 
         public async Task<List<ProductMedia>> GetByProductIdAsync(int productId)
         {
-            return await db.productMedias.Where(x=>x.ProductId == productId).ToListAsync();
+            return await db.productMedias.Where(x=>x.ProductId == productId).OrderBy(x => x.DisplayOrder).ToListAsync();
+        }
+
+        public async Task<List<ProductMedia>> GetImagesByProductIdAsync(int productId)
+        {
+            var imageMedia = await db.mediaTypes.FirstOrDefaultAsync(x => x.Name == "Image");
+            if (imageMedia == null)
+            {
+                return new List<ProductMedia>();
+            }
+
+            return await db.productMedias
+                .Where(x => x.ProductId == productId && x.MediaTypeId == imageMedia.MediaTypeId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+        }
+
+        public async Task<List<ProductMedia>> GetVideosByProductIdAsync(int productId)
+        {
+            var videoMedia = await db.mediaTypes.FirstOrDefaultAsync(x => x.Name == "Video");
+            if (videoMedia == null)
+            {
+                return new List<ProductMedia>();
+            }
+
+            return await db.productMedias
+                .Where(x => x.ProductId == productId && x.MediaTypeId == videoMedia.MediaTypeId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
         }
 
         public async Task<string> GetMediaType(int MediaId)
         {
-            var type= await db.mediaTypes.FirstOrDefaultAsync(x => x.MediaTypeId==MediaId);
-            var name = type.Name;
-            return name;
-
+            var type = await db.mediaTypes.FirstOrDefaultAsync(x => x.MediaTypeId == MediaId);
+            return type?.Name ?? string.Empty;
         }
+
+        public async Task<int> GetProductMediaDisplay(int productId,int mediaType)
+        {
+            var maxOrder = await db.productMedias
+      .Where(x => x.ProductId == productId && x.MediaTypeId == mediaType)
+      .Select(x => (int?)x.DisplayOrder)
+      .MaxAsync();
+            return (maxOrder ?? 0) + 1;
+        }
+
+       
 
         public async Task<bool> IsMediaTypeExist(int mediaTypeId)
         {

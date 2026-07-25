@@ -13,7 +13,7 @@ namespace Shopping.Controllers
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-    //[Authorize(Roles ="admin")]
+    [Authorize(Roles ="admin")]
     public class CategoryAdminManagementController : ControllerBase
     {
         private readonly ICategoryApplicationServiceContract CatApp;

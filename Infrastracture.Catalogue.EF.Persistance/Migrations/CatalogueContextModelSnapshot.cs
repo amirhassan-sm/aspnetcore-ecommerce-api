@@ -140,7 +140,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
                     b.HasKey("MediaTypeId");
 
-                    b.ToTable("MediaType");
+                    b.ToTable("mediaTypes");
                 });
 
             modelBuilder.Entity("Catalogue.Domain.Models.Product", b =>
@@ -273,7 +273,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductMedia");
+                    b.ToTable("productMedias");
                 });
 
             modelBuilder.Entity("Catalogue.Domain.Models.Category", b =>

@@ -48,7 +48,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.FileStorage
             var folderPath = Path.Combine(environment.WebRootPath, "images", "products");
 
 
-            if (Directory.Exists(folderPath))
+            if (!Directory.Exists(folderPath))
             {
 
                 Directory.CreateDirectory(folderPath);

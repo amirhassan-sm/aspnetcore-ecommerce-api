@@ -11,7 +11,7 @@ namespace Shopping.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    //[Authorize(Roles = "admin")]
     public class UserManagementController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;

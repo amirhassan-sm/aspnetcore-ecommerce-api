@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Security;
 using Security.Identity;
 using Security.Repository;
@@ -94,13 +95,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-//builder.Services.AddAuthorization(optaion => {
-//    optaion.AddPolicy("AdminOnly", policy => policy.RequireClaim("role","admin"));
-//    optaion.AddPolicy("hr", policy =>
-//    {
-//        policy.AddRequirements();
 
-//    });
+//builder.Services.AddAuthorization(optaion =>
+//{
+//    optaion.AddPolicy("admin", policy => policy.RequireClaim("roles", "admin"));
+   
 
 
 //});

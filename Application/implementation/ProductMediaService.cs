@@ -1,6 +1,6 @@
 ﻿using Application.Common.BaseModel;
 using Application.Contrast.Services;
-using Application.DTOs;
+using Application.DTOs.ProducMedia;
 using Catalogue.Domain.Models;
 using Catalogue.DomainServiceContract.Service;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,8 @@ namespace Application.implementation
             this.logger = logger;
 
         }
-        private OperationResult ValidateMedia(ProductMediaModel model)
+        
+        private async Task<OperationResult> ValidateMedia(ProductMediaModel model)
         {
             // 1. File name
             if (string.IsNullOrWhiteSpace(model.FileName))
@@ -68,8 +69,9 @@ namespace Application.implementation
             // 4. Extension
             var extension = Path.GetExtension(model.FileName)
                    .ToLowerInvariant();
+            var mediaType = await mediaRepo.GetMediaType(model.MediaTypeId);
 
-            if (model.MediaTypeId == 1)
+            if (mediaType == "Image")
             {
 
 
@@ -94,7 +96,7 @@ namespace Application.implementation
                         "Invalid_File_Extension");
                 }
             }
-            if (model.MediaTypeId == 2)
+             else if (mediaType == "Video")
             {
                 var allowedExtensions = new[]
                {
@@ -114,7 +116,7 @@ namespace Application.implementation
 
 
             }
-            if (model.MediaTypeId!= 1&& model.MediaTypeId!= 2)
+            else 
             {
                 return OperationResult.ToFail(
                         "Upload failed",
@@ -144,7 +146,7 @@ namespace Application.implementation
 
 
         }
-        //TODO  add a display order
+       
         public async Task<OperationResult> AddMediaAsync(ProductMediaModel media)
         {
 
@@ -153,23 +155,26 @@ namespace Application.implementation
                 return OperationResult.ToFail("failed to add media", new List<string> { "this product does not exist" }, "Product_Not_exist");
 
             }
-            if (media.MediaTypeId != 1 && media.MediaTypeId != 2)
-            {
-                return OperationResult.ToFail("failed to add media ", new List<string> { "media type id can only be 1for images  or 2 for videos ," });
+            //remove
+            // if (media.MediaTypeId != 1 && media.MediaTypeId != 2)
+            // {
+            //     return OperationResult.ToFail("failed to add media ", new List<string> { "media type id can only be 1for images  or 2 for videos ," });
 
-            }
+            // }
 
-            var isValid = ValidateMedia(media);
-            if (!isValid.Success)
-            {
-                return isValid;
-
-            }
+            
             if (!await mediaRepo.IsMediaTypeExist(media.MediaTypeId))
             {
                 return OperationResult.ToFail("Failed to add media", new List<string> { " this media type id does not exist" }, "MediaType_NotExist");
 
             }
+            var isValid = await ValidateMedia(media);
+            if (!isValid.Success)
+            {
+                return isValid;
+
+            }
+         
             string? MediaLocation = "";
 
             try
@@ -178,7 +183,11 @@ namespace Application.implementation
 
                 MediaLocation = await fileStorage.SaveAsync(media.FileStream, media.FileName);
                 media.Url = MediaLocation;
+                media.DisplayOrder = await mediaRepo.GetProductMediaDisplay(media.ProductId, media.MediaTypeId);
+
                 await mediaRepo.AddAsync(MediaModelMapToMedia(media));
+               
+                
                 return OperationResult.ToSuccess("Mdeia added successfully");
             }
             catch (Exception ex)
@@ -202,21 +211,13 @@ media.ProductId);
 
             }
 
-
-
-
-
-
-
-
-
         }
 
         public async Task<GenericOperationResult<ProductMediaModel>> GetByIdAsync(int id)
         {
             try
             {
-                if (await mediaRepo.IsProductMediaExist(id))
+                if (!await mediaRepo.IsProductMediaExist(id))
                 {
                     return GenericOperationResult<ProductMediaModel>.ToFail("failed to get", new List<string> { "this peorduct media does not exist" }
                     , "ProductMedia_NotExist"); 
@@ -252,7 +253,7 @@ media.ProductId);
         }
         
 
-        public async Task<GenericOperationResult<List<ProductMediaModel>>> GetByProductIdAsync(int productId)
+        public async Task<GenericOperationResult<List<ProductMediaModel>>> GetAllMediaByProductIdAsync(int productId)
         {
             try
             {
@@ -312,6 +313,78 @@ media.ProductId);
             }
 
 
+        }
+
+        public async Task<GenericOperationResult<List<ProductMediaModel>>> GetImagesByProductIdAsync(int productId)
+        {
+            try
+            {
+                var MediaList = await mediaRepo.GetImagesByProductIdAsync(productId);
+                var modelList = MediaList.Select(x => new ProductMediaModel
+                {
+                    ConfirmByUserName = x.ConfirmByUserName,
+                    DisplayOrder = x.DisplayOrder,
+                    fileSize = x.fileSize,
+                    IsConfirmed = x.IsConfirmed,
+                    MediaTypeId = x.MediaTypeId,
+                    UploadingUserName = x.UploadingUserName,
+                    ProductId = x.ProductId,
+                    Url = x.Url,
+                    ProductMediaId = x.ProductMediaId,
+
+                }).ToList();
+
+                return GenericOperationResult<List<ProductMediaModel>>.ToSuccess("list items", modelList);
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError(ex, "failed to get product media list {productid} ", productId);
+
+                return GenericOperationResult<List<ProductMediaModel>>.ToFail("faile to get", new List<string> { "An unexpected error occures" },
+                 "Exception_Occured");
+
+
+            }
+        }
+
+        public async Task<GenericOperationResult<List<ProductMediaModel>>> GetVideosByProductIdAsync(int productId)
+        {
+            try
+            {
+                var MediaList = await mediaRepo.GetVideosByProductIdAsync(productId);
+                var modelList = MediaList.Select(x => new ProductMediaModel
+                {
+                    ConfirmByUserName = x.ConfirmByUserName,
+                    DisplayOrder = x.DisplayOrder,
+                    fileSize = x.fileSize,
+                    IsConfirmed = x.IsConfirmed,
+                    MediaTypeId = x.MediaTypeId,
+                    UploadingUserName = x.UploadingUserName,
+                    ProductId = x.ProductId,
+                    Url = x.Url,
+                    ProductMediaId = x.ProductMediaId,
+
+                }).ToList();
+
+                return GenericOperationResult<List<ProductMediaModel>>.ToSuccess("list items", modelList);
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError(ex, "failed to get product media list {productid} ", productId);
+
+                return GenericOperationResult<List<ProductMediaModel>>.ToFail("faile to get", new List<string> { "An unexpected error occures" },
+                 "Exception_Occured");
+
+
+            }
         }
     }
 }

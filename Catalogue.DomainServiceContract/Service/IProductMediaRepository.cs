@@ -21,6 +21,14 @@ namespace Catalogue.DomainServiceContract.Service
         Task<bool> IsProductMediaExist(int productMediaId);
         Task<string> GetMediaType(int MediaId);
 
+        Task<int> GetProductMediaDisplay(int productId, int mediaType);
+
+        Task<List<ProductMedia>> GetImagesByProductIdAsync(int productId);
+        Task<List<ProductMedia>> GetVideosByProductIdAsync(int productId);
+
+
+
+
         Task SaveAsync();
     }
 }

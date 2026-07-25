@@ -1,5 +1,5 @@
 ﻿using Application.Common.BaseModel;
-using Application.DTOs;
+using Application.DTOs.ProducMedia;
 using Catalogue.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,10 @@ namespace Application.Contrast.Services
 
         Task<GenericOperationResult<ProductMediaModel>> GetByIdAsync(int id);
 
-        Task<GenericOperationResult<List<ProductMediaModel>>> GetByProductIdAsync(int productId);
+        Task<GenericOperationResult<List<ProductMediaModel>>> GetAllMediaByProductIdAsync(int productId);
+        Task<GenericOperationResult<List<ProductMediaModel>>> GetImagesByProductIdAsync(int productId);
+
+        Task<GenericOperationResult<List<ProductMediaModel>>> GetVideosByProductIdAsync(int productId);
 
         Task<OperationResult> RemoveAsync(int id);
     }
