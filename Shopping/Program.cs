@@ -2,20 +2,27 @@
 using Application.Contrast.Repositories;
 using Application.Contrast.Services;
 using Application.implementation;
+using Application.Validators.Category;
 using Catalogue.DomainServiceContract.Service;
+using FluentValidation;
 using Infrastracture.Catalogue.EF.Persistance;
 using Infrastracture.Catalogue.EF.Persistance.FileStorage;
 using Infrastracture.Catalogue.EF.Persistance.Querie;
 using Infrastracture.Catalogue.EF.Persistance.Repositories;
 using Infrastracture.Security.Repository;
+using Infrastructure.Sale;
+using Infrastructure.Sale.repositry;
+using Sale.DomainServiceContract.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Security;
 using Security.Identity;
 using Security.Repository;
+using Shopping.Security;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,10 +32,12 @@ var builder = WebApplication.CreateBuilder(args);
 string CatalogueConnectionString = builder.Configuration.GetConnectionString("CatalogueConnectionString");
 
 string SecurityConnectionString = builder.Configuration.GetConnectionString("Security");
+string SaleSystemConnectionString = builder.Configuration.GetConnectionString("Sale");
 
 builder.Services.AddDbContext<CatalogueContext>(optionsAction => optionsAction.UseSqlServer(CatalogueConnectionString));
 
 builder.Services.AddDbContext<SecurityContext>(optionsAction => optionsAction.UseSqlServer(SecurityConnectionString));
+builder.Services.AddDbContext<SaleSystemContext>(optionsAction =>optionsAction.UseSqlServer(SaleSystemConnectionString));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(optionAction =>
 {
@@ -41,6 +50,9 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(optionAction =>
 
 
 var secretKey = builder.Configuration["jwt:SecretKey"];
+
+
+
 
 
 builder.Services.
@@ -120,13 +132,22 @@ builder.Services.AddScoped<IFeatureApplicationServiceContract, FeatureApplicatio
 builder.Services.AddScoped<IProductMediaRepository, ProductMediaRepository>();
 builder.Services.AddScoped<IProductMediaService, ProductMediaService>();
 builder.Services.AddScoped<IFileStorage, FileStorage>();
+builder.Services.AddScoped<IBasketQueryService, BasketQueryService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderManagament, OrderManagament>();
 
 //builder.Services.AddHttpClient("shop", client =>
 //{
 //    client.BaseAddress = Uri();
 //});
+builder.Services.AddScoped<ValidationFilter>();
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<CategoryAddModelValidator>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -135,6 +156,8 @@ builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
+
+await IdentityDataSeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -151,6 +174,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 
 app.Run();

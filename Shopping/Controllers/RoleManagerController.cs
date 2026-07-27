@@ -3,12 +3,13 @@ using Application.DTOs.Security.Roles;
 using Application.implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shopping.Security;
 
 namespace Shopping.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = AppRoles.Admin)]
     public class RoleManagerController : ControllerBase
     {
         private readonly IRoleServices roleServices;

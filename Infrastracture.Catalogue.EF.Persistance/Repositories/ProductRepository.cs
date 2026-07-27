@@ -65,6 +65,35 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             
         }
 
+        public async Task DecreseQuantity(int productId, int Quantity)
+        {
+            if (Quantity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(Quantity));
+
+            var prod = await db.products.FirstOrDefaultAsync(x => x.ProductId == productId);
+            if (prod == null)
+                throw new InvalidOperationException("Product not found");
+
+            if (prod.AvailableProductCount < Quantity)
+                throw new InvalidOperationException("Not enough stock.");
+
+            prod.AvailableProductCount -= Quantity;
+            await db.SaveChangesAsync();
+        }
+
+        public async Task IncreaseQuantity(int productId, int Quantity)
+        {
+            if (Quantity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(Quantity));
+
+            var prod = await db.products.FirstOrDefaultAsync(x => x.ProductId == productId);
+            if (prod == null)
+                throw new InvalidOperationException("Product not found");
+
+            prod.AvailableProductCount += Quantity;
+            await db.SaveChangesAsync();
+        }
+
         public async Task<bool> ExistProductNameAsync(string productName)
         {
             return await db.products.AnyAsync(x => x.ProductName == productName);
@@ -144,6 +173,17 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
         public async Task<bool> IsProductFeatureExistAsync(int productid, int FeatureId)
         {
            return await db.ProductFeatures.AnyAsync(x=>x.ProductId == productid && x.FeatureId == FeatureId);
+        }
+
+        public async Task<bool> IsProductQuantityAvilable(int prductId)
+        {
+            var prod = await db.products.FirstOrDefaultAsync(x => x.ProductId == prductId);
+            if (prod == null)
+            {
+                throw new Exception("Product noy exist");
+                
+            }
+            return (prod.AvailableProductCount<0);
         }
 
         public async Task<bool> ProductExistExceptCurrentNameAsync(int id, string productName)

@@ -59,7 +59,7 @@ namespace Application.implementation
 
         public async Task<OperationResult> AddNew(CategoryAddModel model)
         {
-            // depth and line age dose not set proper
+           
 
 
 

@@ -55,6 +55,9 @@ namespace Shopping.Controllers
                     return BadRequest(OperationResult.
                         ToFail("sign Up failed" , result.Errors.Select(x=>x.Description ).ToList()));
                 }
+
+                await userManager.AddToRoleAsync(user, Shopping.Security.AppRoles.User);
+
                 var jwt = await auth.GenerateToken(user);
                 var refresh =  auth.GenerateRefreshToken();
                 user.RefreshToken=refresh;

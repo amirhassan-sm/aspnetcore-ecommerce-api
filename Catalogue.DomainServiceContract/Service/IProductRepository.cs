@@ -34,6 +34,10 @@ namespace Catalogue.DomainServiceContract.Service
         Task RemoveAllFeaturesFromProduct(int id);
 
         Task SetFeatureValues(int productId , int fetureId,  string value);
+
+        Task<bool> IsProductQuantityAvilable(int prductId);
+        Task DecreseQuantity(int productId, int Quantity);
+        Task IncreaseQuantity(int productId, int Quantity);
    
        
 

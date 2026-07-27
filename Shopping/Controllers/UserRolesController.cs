@@ -1,16 +1,14 @@
 ﻿using Application.Contrast.Services;
 using Application.DTOs.Security.Roles;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shopping.Security;
 
 namespace Shopping.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles ="admin")]
-
-    
+    [Authorize(Roles = AppRoles.Admin)]
     public class UserRolesController : ControllerBase
     {
 

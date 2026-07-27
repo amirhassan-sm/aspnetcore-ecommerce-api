@@ -1,4 +1,4 @@
-﻿using Catalogue.Domain.Models;
+﻿    using Catalogue.Domain.Models;
 using Infrastracture.Catalogue.EF.Persistance.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,6 +19,7 @@ namespace Infrastracture.Catalogue.EF.Persistance
         public DbSet<Feature> features { get; set; }
         public DbSet<CategoryFeature> CategoryFeatures { get; set; }
         public DbSet<Product> products{ get; set; }
+        //public IEnumerable<object> Products { get; internal set; }
         public DbSet<ProductFeature> ProductFeatures{ get; set; }
         public DbSet<ProductMedia> productMedias { get; set; }
         public DbSet<MediaType> mediaTypes{ get; set; }

@@ -9,9 +9,12 @@
     <Project Path="Catalogue.Domain/Catalogue.Domain.csproj" />
     <Project Path="Catalogue.DomainServiceContract/Catalogue.DomainServiceContract.csproj" />
     <Project Path="Framwork.Domain/Framwork.Domain.csproj" />
+    <Project Path="Sale.Domain/Sale.Domain.csproj" Id="31279df4-26d3-405a-9496-4556345c327b" />
+    <Project Path="Sale.DomainServiceContract/Sale.DomainServiceContract.csproj" Id="56608838-169f-46e2-b27d-e5d12c18c3ec" />
   </Folder>
   <Folder Name="/Infrastructure/">
     <Project Path="Infrastracture.Catalogue.EF.Persistance/Infrastracture.Catalogue.EF.Persistance.csproj" Id="760259d0-f47b-42d6-9856-a2f6a180def4" />
+    <Project Path="Infrastructure.Sale/Infrastructure.Sale.csproj" Id="41d10f29-a780-4b4a-9f67-85de24f139e6" />
     <Project Path="Security/Infrastracture.Security.csproj" Id="6f08b99f-5b25-4d3e-b6f5-a2cd87259337" />
   </Folder>
   <Folder Name="/Tests/">
