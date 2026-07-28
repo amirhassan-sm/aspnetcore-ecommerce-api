@@ -1,6 +1,7 @@
 using Application.Contrast.Services;
 using Application.DTOs.Basket;
 using Application.DTOs.Order;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shopping.Security;
@@ -41,7 +42,7 @@ namespace Shopping.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterFinalOrder([FromBody] OrderDto order)
         {
@@ -57,7 +58,7 @@ namespace Shopping.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{orderId:int}")]
         public async Task<IActionResult> GetOrderById(int orderId)
         {
@@ -72,7 +73,7 @@ namespace Shopping.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("my-orders")]
         public async Task<IActionResult> GetMyOrders()
         {
@@ -86,7 +87,7 @@ namespace Shopping.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("{orderId:int}/cancel")]
         public async Task<IActionResult> CancelOrder(int orderId)
         {
@@ -103,8 +104,12 @@ namespace Shopping.Controllers
 
         private bool TryGetUserId(out int userId)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.TryParse(userIdClaim, out userId);
+            var raw =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst("sub")?.Value
+                ?? User.FindFirst("nameid")?.Value;
+
+            return int.TryParse(raw, out userId);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Application.Common.BaseModel;
 using Application.Contrast.Services;
 using Application.DTOs.Category;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shopping.Security;
@@ -9,7 +10,7 @@ namespace Shopping.Controllers
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
     public class CategoryAdminManagementController : ControllerBase
     {
         private readonly ICategoryApplicationServiceContract CatApp;

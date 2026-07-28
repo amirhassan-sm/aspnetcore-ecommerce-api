@@ -35,6 +35,46 @@ namespace Application.implementation
             return cat;
 
         }
+
+        /// <summary>
+        /// Resolves category depth when Depth is null (legacy/broken rows).
+        /// </summary>
+        private async Task<int> ResolveCategoryDepthAsync(Category category)
+        {
+            if (category.Depth.HasValue && category.Depth.Value > 0)
+                return category.Depth.Value;
+
+            if (!string.IsNullOrWhiteSpace(category.LineAge))
+            {
+                var segments = category.LineAge
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (segments.Length > 0)
+                    return segments.Length;
+            }
+
+            if (category.ParentId == null)
+                return 1;
+
+            var parent = await repo.Get(category.ParentId.Value);
+            if (parent == null)
+                return 0;
+
+            var parentDepth = await ResolveCategoryDepthAsync(parent);
+            return parentDepth <= 0 ? 0 : parentDepth + 1;
+        }
+
+        private static string EnsureLineAge(Category category)
+        {
+            if (!string.IsNullOrWhiteSpace(category.LineAge))
+            {
+                return category.LineAge.EndsWith(",")
+                    ? category.LineAge
+                    : $"{category.LineAge},";
+            }
+
+            return $"{category.CategoryId},";
+        }
+
         private Category UpdateModelMapToCat(CategoryUpdateModel model)
         {
             return new Category
@@ -74,59 +114,89 @@ namespace Application.implementation
 
             }
 
-            int depth = 0;
-            if (model.ParentId == null) // setting max 3 depth
+            int depth;
+            Category? parentForLineage = null;
+
+            if (model.ParentId == null)
             {
                 depth = 1;
             }
-            if (model.ParentId != null)
+            else
             {
                 Category parent = await repo.Get(model.ParentId.Value);
                 if (parent == null)
                 {
-                    return OperationResult.ToFail("Add Failed", new List<string> { "this parent dose not exist" },"Parent_Is_Null");
-
+                    return OperationResult.ToFail(
+                        "Add Failed",
+                        new List<string> { "this parent dose not exist" },
+                        "Parent_Is_Null");
                 }
-                if (parent.Depth == 3)
+
+                // Depth is nullable in DB; older/broken rows may have null and previously crashed on .Value
+                int parentDepth = await ResolveCategoryDepthAsync(parent);
+                if (parentDepth <= 0)
                 {
-                    return OperationResult.ToFail("add failed", new List<string>() { "Depth can't be more than 3 " }, "Depth_Is_BiggerThan3");
-
+                    return OperationResult.ToFail(
+                        "Add Failed",
+                        new List<string> { "parent category depth is invalid" },
+                        "Parent_Depth_Invalid");
                 }
-                depth = parent.Depth.Value + 1;
 
+                // Persist repaired depth so next child creates do not fail again
+                if (!parent.Depth.HasValue || parent.Depth.Value != parentDepth)
+                {
+                    var repairedLineAge = EnsureLineAge(parent);
+                    await repo.SetDepthAndLineAge(parent.CategoryId, parentDepth, repairedLineAge);
+                    parent.Depth = parentDepth;
+                    parent.LineAge = repairedLineAge;
+                }
+
+                if (parentDepth >= 3)
+                {
+                    return OperationResult.ToFail(
+                        "add failed",
+                        new List<string> { "Depth can't be more than 3 " },
+                        "Depth_Is_BiggerThan3");
+                }
+
+                depth = parentDepth + 1;
+                parentForLineage = parent;
             }
 
             int recordId;
             try
             {
                 var cat = ToDBModel(model);
-
                 recordId = await repo.AddNew(cat);
-
-
-
             }
             catch
             {
-
-                return OperationResult.ToFail("Add Failed", new List<string> {"an unexpected error occured"},"ExcetionThrows");
+                return OperationResult.ToFail(
+                    "Add Failed",
+                    new List<string> { "an unexpected error occured" },
+                    "ExcetionThrows");
             }
-            string Lineage = "";
-            if (model.ParentId == null)
-            {
-                Lineage = $"{recordId},";
 
+            string lineage;
+            if (parentForLineage == null)
+            {
+                lineage = $"{recordId},";
             }
             else
             {
-
-                var parent = await repo.Get(model.ParentId.Value);
-               
-                Lineage = $"{parent.LineAge}{recordId},";
+                var parentLineAge = EnsureLineAge(parentForLineage);
+                lineage = $"{parentLineAge}{recordId},";
             }
 
-
-            var l = repo.SetDepthAndLineAge(recordId, depth, Lineage);
+            var depthSaved = await repo.SetDepthAndLineAge(recordId, depth, lineage);
+            if (!depthSaved)
+            {
+                return OperationResult.ToFail(
+                    recordId,
+                    "Category created but depth/lineage was not saved",
+                    new List<string> { "SetDepthAndLineAge failed" },
+                    "Depth_Persist_Failed");
+            }
 
             return OperationResult.ToSuccess(recordId, "Category Added");
 

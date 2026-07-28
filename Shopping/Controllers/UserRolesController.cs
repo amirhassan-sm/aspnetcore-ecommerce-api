@@ -1,5 +1,6 @@
 ﻿using Application.Contrast.Services;
 using Application.DTOs.Security.Roles;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shopping.Security;
@@ -8,7 +9,7 @@ namespace Shopping.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
     public class UserRolesController : ControllerBase
     {
 

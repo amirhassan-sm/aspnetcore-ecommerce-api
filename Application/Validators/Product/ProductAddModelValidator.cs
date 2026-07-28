@@ -20,9 +20,6 @@ namespace Application.Validators.Product
             RuleFor(x => x.BasePrice)
                 .GreaterThan(0);
 
-            RuleFor(x => x.ImageUrl)
-                .MaximumLength(1000);
-
             RuleFor(x => x.Introduction)
                 .MaximumLength(3000);
 

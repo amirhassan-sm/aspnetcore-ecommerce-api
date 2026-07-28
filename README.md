@@ -4,6 +4,8 @@
 
 > Portfolio / resume project — modular Web API with clear domain boundaries, JWT auth, and a working checkout flow.
 
+**Frontend (Next.js):** https://github.com/amirhassan-sm/Ecommerce-FrontEnd.git
+
 ## About
 
 Shopping is a modular Web API that models a **classic online store**: hierarchical categories, products with pricing/SEO/stock, reusable feature attributes, product media (images/videos), and a sale flow (basket → order → stock deduction).

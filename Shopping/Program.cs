@@ -23,7 +23,9 @@ using Security;
 using Security.Identity;
 using Security.Repository;
 using Shopping.Security;
+using System.Security.Claims;
 using System.Text;
+using Shopping.mediatype;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,43 +41,54 @@ builder.Services.AddDbContext<CatalogueContext>(optionsAction => optionsAction.U
 builder.Services.AddDbContext<SecurityContext>(optionsAction => optionsAction.UseSqlServer(SecurityConnectionString));
 builder.Services.AddDbContext<SaleSystemContext>(optionsAction =>optionsAction.UseSqlServer(SaleSystemConnectionString));
 
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(optionAction =>
+builder.Services.AddIdentityCore<ApplicationUser>(optionAction =>
 {
     optionAction.Password.RequireDigit = true;
     optionAction.Lockout.MaxFailedAccessAttempts = 10;
     optionAction.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-}).AddEntityFrameworkStores<SecurityContext>().AddDefaultTokenProviders();
+})
+.AddRoles<ApplicationRole>()
+.AddEntityFrameworkStores<SecurityContext>()
+.AddSignInManager()
+.AddDefaultTokenProviders();
 
+var secretKey = builder.Configuration["jwt:SecretKey"]
+    ?? throw new InvalidOperationException("jwt:SecretKey is missing from configuration.");
 
-
-
-var secretKey = builder.Configuration["jwt:SecretKey"];
-
-
-
-
-
-builder.Services.
-    AddAuthentication(option =>
-    {
-        option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        option.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(optionsAction =>
-{
-    optionsAction.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.Zero,
+        optionsAction.RequireHttpsMetadata = false;
+        optionsAction.SaveToken = true;
+        optionsAction.MapInboundClaims = false;
+        optionsAction.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(secretKey)),
+            ClockSkew = TimeSpan.FromMinutes(2),
+            NameClaimType = ClaimTypes.NameIdentifier,
+            RoleClaimType = ClaimTypes.Role,
+        };
+        optionsAction.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"[JWT] Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Console.WriteLine($"[JWT] Challenge: {context.Error} - {context.ErrorDescription}");
+                return Task.CompletedTask;
+            },
+        };
+    });
 
-    };
-
-});
 builder.Services.AddSwaggerGen(options =>
 {
     // 1️⃣ Add JWT Authentication definition
@@ -145,12 +158,34 @@ builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
+}).AddJsonOptions(json =>
+{
+    // Keep C# property names (PascalCase + intentional DTO typos like pageSize)
+    json.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
-builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblyContaining<CategoryAddModelValidator>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin)) return false;
+                var uri = new Uri(origin);
+                return uri.Host is "localhost" or "127.0.0.1"
+                    || uri.Host.StartsWith("192.168.")
+                    || uri.Host.StartsWith("10.");
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 
 
@@ -158,6 +193,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 await IdentityDataSeeder.SeedAsync(app.Services);
+await mediaTypeDataSeeder.seedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -167,7 +203,13 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseHttpsRedirection();
+app.UseCors("Frontend");
+// Do NOT redirect HTTP→HTTPS in Development: clients (and Next.js rewrite)
+// drop the Authorization header on 307 redirects, which breaks /UserManagement/me.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 app.UseAuthentication();
 

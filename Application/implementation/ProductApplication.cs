@@ -1,6 +1,7 @@
 ﻿using Application.Common.BaseModel;
 using Application.Contrast.QueryServices;
 using Application.Contrast.Services;
+using Application.DTOs.ProducMedia;
 using Application.DTOs.Product;
 using Application.DTOs.ProductFeatures;
 using Catalogue.Domain.Models;
@@ -19,12 +20,14 @@ namespace Application.implementation
         private readonly IProductRepository repo;
         private readonly IProductQueryServices queryServices;
         private readonly ILogger<ProductApplication> logger;
-        public ProductApplication(IProductRepository repo, IProductQueryServices queryServices, ILogger<ProductApplication> logger)
+        private readonly IProductMediaService mediaService;
+        public ProductApplication(IProductRepository repo, IProductQueryServices queryServices, ILogger<ProductApplication> logger
+            , IProductMediaService mediaService)
         {
             this.repo = repo;
             this.queryServices = queryServices;
             this.logger = logger;
-
+            this.mediaService = mediaService;
         }
         private Product AddModelMapToProduct(ProductAddModel model)
         {
@@ -243,10 +246,28 @@ namespace Application.implementation
 
                 }
                 await repo.RemoveAllFeaturesFromProduct(ProductId);
+                var productMedias = await mediaService.GetAllMediaByProductIdAsync(ProductId);
+             
+                  foreach(var item in productMedias.Item ?? new List<ProductMediaModel>())
+                    {
+                      var result =   await mediaService.RemoveAsync(item.ProductMediaId);
+                        if (result.Success == false)
+                        {
+                            logger.LogWarning("Failed to remove media {MediaId}", item.ProductMediaId);
+                            continue;
+                            
+                        }
+
+                    }
+                
+               
+                
                 await repo.Remove(ProductId);
 
 
                 return OperationResult.ToSuccess(ProductId, "product removed succesfully");
+                
+               
 
 
             }

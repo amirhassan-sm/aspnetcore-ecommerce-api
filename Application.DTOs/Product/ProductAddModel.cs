@@ -18,8 +18,6 @@ namespace Application.DTOs.Product
         
         public decimal BasePrice { get; set; }
 
-        public string ImageUrl { get; set; }
-
         public string Introduction { get; set; }
      
         public int AvailableProductCount { get; set; }

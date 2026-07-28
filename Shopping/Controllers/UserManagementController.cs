@@ -1,6 +1,7 @@
 ﻿using Application.Common.BaseModel;
 using Application.Contrast.Services;
 using Application.DTOs.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace Shopping.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserManagementController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -29,7 +31,10 @@ namespace Shopping.Controllers
         {
             try
             {
-                var userIdS = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdS =
+                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst("sub")?.Value
+                    ?? User.FindFirst("nameid")?.Value;
                 if (!int.TryParse(userIdS, out int userId))
                 {
                     return Unauthorized(

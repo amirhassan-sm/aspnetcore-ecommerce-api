@@ -66,12 +66,9 @@ namespace Security.Repository
             var Credentila = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             double expierAt = Convert.ToDouble(configuration["jwt:DurationInMinutes"]);
             var token = new JwtSecurityToken(
-                issuer: configuration["jwt:Issuer"],
-                audience: configuration["jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(expierAt),
                 signingCredentials: Credentila
-
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);

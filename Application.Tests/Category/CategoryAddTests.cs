@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Category;
+﻿theusing Application.DTOs.Category;
 using Application.implementation;
 using Catalogue.Domain.Models;
 using Catalogue.DomainServiceContract.Service;
@@ -131,6 +131,47 @@ namespace Application.Tests.Category
 
 
         }
+
+        [Fact]
+        public async Task AddNew_Child_ShouldSucceed_WhenParentDepthIsNull_AndRepairIt()
+        {
+            var category = new CategoryAddModel
+            {
+                CategoryName = "Level3",
+                CategoryDescription = "Test",
+                Slug = "level-3",
+                ParentId = 2
+            };
+
+            mockrepo.Setup(x => x.ExistCategoryName(category.CategoryName)).ReturnsAsync(false);
+            mockrepo.Setup(x => x.ExistSlugName(category.Slug)).ReturnsAsync(false);
+            mockrepo.Setup(x => x.Get(2)).ReturnsAsync(new Catalogue.Domain.Models.Category
+            {
+                CategoryId = 2,
+                CategoryName = "Level2",
+                ParentId = 1,
+                LineAge = "1,2,",
+                Depth = null // broken row that previously crashed on .Value
+            });
+            mockrepo.Setup(x => x.Get(1)).ReturnsAsync(new Catalogue.Domain.Models.Category
+            {
+                CategoryId = 1,
+                CategoryName = "Level1",
+                ParentId = null,
+                LineAge = "1,",
+                Depth = 1
+            });
+            mockrepo.Setup(x => x.AddNew(It.IsAny<Catalogue.Domain.Models.Category>())).ReturnsAsync(3);
+            mockrepo.Setup(x => x.SetDepthAndLineAge(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            var result = await service.AddNew(category);
+
+            Assert.True(result.Success);
+            mockrepo.Verify(x => x.SetDepthAndLineAge(2, 2, "1,2,"), Times.Once);
+            mockrepo.Verify(x => x.SetDepthAndLineAge(3, 3, "1,2,3,"), Times.Once);
+        }
+
         [Fact]
         public async Task AddNew_Child_ShouldSuccess()
         {
