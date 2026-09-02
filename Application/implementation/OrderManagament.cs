@@ -151,8 +151,10 @@ namespace Application.implementation
 
                 return GenericOperationResult<OrderResultDto>.ToSuccess(saved.OrderId, "order registered", result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine($"[Order] Register failed: {ex}");
+
                 // اگر ثبت سفارش fail شد، موجودی برگشت داده شود
                 foreach (var item in deductedItems)
                 {
@@ -168,7 +170,7 @@ namespace Application.implementation
 
                 return GenericOperationResult<OrderResultDto>.ToFail(
                     "register failed",
-                    new List<string> { "An unexpected error occurred." },
+                    new List<string> { ex.GetBaseException().Message },
                     "Exception_Occured");
             }
         }

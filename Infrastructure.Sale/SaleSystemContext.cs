@@ -23,7 +23,11 @@ namespace Infrastructure.Sale
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SaleSystemContext).Assembly);
-            modelBuilder.Entity<OrderDetails>(x => x.HasKey(x => x.OrderDetailId));
+            modelBuilder.Entity<OrderDetails>(entity =>
+            {
+                entity.HasKey(x => x.OrderDetailId);
+                entity.ToTable("OrderDetails");
+            });
             base.OnModelCreating(modelBuilder);
         }
 

@@ -19,13 +19,14 @@ namespace Application.Tests.Product
         private readonly Mock<IProductQueryServices> mockQuery;
         private readonly Mock<ILogger<ProductApplication>> mockLogger;
         private readonly ProductApplication service;
+        private readonly Mock<ProductMediaService> mockMedia;
 
         public AddNewProductTests()
         {
             mockRepo = new Mock<IProductRepository>();
             mockQuery = new Mock<IProductQueryServices>();
             mockLogger = new Mock<ILogger<ProductApplication>>();
-            service = new ProductApplication(mockRepo.Object, mockQuery.Object,mockLogger.Object);
+            service = new ProductApplication(mockRepo.Object, mockQuery.Object,mockLogger.Object,mockMedia.Object);
         }
         [Fact]
 

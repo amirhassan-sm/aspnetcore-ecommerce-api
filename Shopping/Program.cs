@@ -24,10 +24,18 @@ using Security.Identity;
 using Security.Repository;
 using Shopping.Security;
 using System.Security.Claims;
+using Shopping;
 using System.Text;
 using Shopping.mediatype;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 // Add services to the container.
 
@@ -168,6 +176,18 @@ builder.Services.AddValidatorsFromAssemblyContaining<CategoryAddModelValidator>(
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+var allowedOrigins = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+    .Select(origin => origin.Trim().TrimEnd('/'))
+    .Where(origin => origin.Length > 0)
+    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -176,7 +196,11 @@ builder.Services.AddCors(options =>
             .SetIsOriginAllowed(origin =>
             {
                 if (string.IsNullOrWhiteSpace(origin)) return false;
-                var uri = new Uri(origin);
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+
+                var normalized = $"{uri.Scheme}://{uri.Authority}".TrimEnd('/');
+                if (allowedOrigins.Contains(normalized)) return true;
+
                 return uri.Host is "localhost" or "127.0.0.1"
                     || uri.Host.StartsWith("192.168.")
                     || uri.Host.StartsWith("10.");
@@ -192,29 +216,28 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (string.IsNullOrWhiteSpace(app.Environment.WebRootPath))
+{
+    app.Environment.WebRootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+}
+Directory.CreateDirectory(Path.Combine(app.Environment.WebRootPath, "images", "products"));
+
+await DatabaseMigrator.MigrateAsync(app.Services);
 await IdentityDataSeeder.SeedAsync(app.Services);
 await mediaTypeDataSeeder.seedAsync(app.Services);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseForwardedHeaders();
 
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("Frontend");
-// Do NOT redirect HTTP→HTTPS in Development: clients (and Next.js rewrite)
-// drop the Authorization header on 307 redirects, which breaks /UserManagement/me.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
 app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 
 

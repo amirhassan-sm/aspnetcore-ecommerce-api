@@ -13,6 +13,7 @@ namespace Infrastructure.Sale.Configuration
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
+            builder.ToTable("Order");
             builder.Property(x => x.OrderId).IsRequired();
             builder.HasKey(x => x.OrderId);
             builder.Property(x => x.CustomerName).IsRequired();

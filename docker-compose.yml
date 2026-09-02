@@ -1,0 +1,42 @@
+name: shopping
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Shopping_SaPass123}
+    ports:
+      - "14333:1433"
+    volumes:
+      - shopping-sql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/1433'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5250:10000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      PORT: "10000"
+      ASPNETCORE_URLS: http://0.0.0.0:10000
+      ConnectionStrings__CatalogueConnectionString: Server=sqlserver,1433;Database=Shopping;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Shopping_SaPass123};TrustServerCertificate=True;MultipleActiveResultSets=True
+      ConnectionStrings__Security: Server=sqlserver,1433;Database=Security;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Shopping_SaPass123};TrustServerCertificate=True;MultipleActiveResultSets=True
+      ConnectionStrings__Sale: Server=sqlserver,1433;Database=SaleSystem;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Shopping_SaPass123};TrustServerCertificate=True;MultipleActiveResultSets=True
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - product-images:/app/wwwroot/images/products
+
+volumes:
+  shopping-sql-data:
+  product-images:
