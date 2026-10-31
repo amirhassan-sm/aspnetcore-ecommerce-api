@@ -70,7 +70,7 @@ namespace Infrastracture.Catalogue.EF.Persistance.Repositories
             return await db.categories.AnyAsync(x => x.Slug == categorySlug);
         }
 
-        public async Task<Category> Get(int id)
+        public async Task<Category?> Get(int id)
         {
             var cat = await db.categories.FirstOrDefaultAsync(x => x.CategoryId == id);
 

@@ -98,6 +98,43 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.ToTable("CategoryFeatures");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.Comment", b =>
+                {
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
+
+                    b.Property<DateTime>("CommentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("comments");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Feature", b =>
                 {
                     b.Property<int>("FeatureId")
@@ -305,6 +342,24 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Navigation("feature");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.Comment", b =>
+                {
+                    b.HasOne("Catalogue.Domain.Models.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Catalogue.Domain.Models.Product", "Product")
+                        .WithMany("comments")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Product", b =>
                 {
                     b.HasOne("Catalogue.Domain.Models.Category", "category")
@@ -363,6 +418,11 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Catalogue.Domain.Models.Comment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("Catalogue.Domain.Models.Feature", b =>
                 {
                     b.Navigation("categoryFeatures");
@@ -377,6 +437,8 @@ namespace Infrastracture.Catalogue.EF.Persistance.Migrations
 
             modelBuilder.Entity("Catalogue.Domain.Models.Product", b =>
                 {
+                    b.Navigation("comments");
+
                     b.Navigation("productFeatures");
 
                     b.Navigation("productMedia");

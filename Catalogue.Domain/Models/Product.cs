@@ -31,6 +31,7 @@ namespace Catalogue.Domain.Models
         public Category category { get; set; }
         public List<ProductFeature> productFeatures { get; set; } = new List<ProductFeature>();
         public List<ProductMedia> productMedia { get; set; } = new List<ProductMedia>();
+        public List<Comment> comments { get; set; } = new();    
 
 
 

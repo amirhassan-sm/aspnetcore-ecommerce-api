@@ -9,7 +9,7 @@ namespace Framwork.Domain.BaseInterface
 {
     public interface IBaseRepoModel<TModel,Tkey>
     {
-        Task<TModel> Get(Tkey id);
+        Task<TModel?> Get(Tkey id);
         Task<int> AddNew(TModel model);
         Task<bool> Remove(Tkey id);
         Task<bool> Update(TModel model);

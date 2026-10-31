@@ -23,11 +23,14 @@ namespace Infrastracture.Catalogue.EF.Persistance
         public DbSet<ProductFeature> ProductFeatures{ get; set; }
         public DbSet<ProductMedia> productMedias { get; set; }
         public DbSet<MediaType> mediaTypes{ get; set; }
+        public DbSet<Comment> comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration<Category>(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration<Product>(new ProductConfiguration());
             modelBuilder.ApplyConfiguration<Feature>(new  FeatureConfiguration());
+            modelBuilder.ApplyConfiguration<Comment>(new CommentConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }
